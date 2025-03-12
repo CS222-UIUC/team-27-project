@@ -1,3 +1,0 @@
-this is my first file for this project
-append this to file.txt
-append this to file.txt to demonstrate diff

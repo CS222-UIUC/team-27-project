@@ -1,0 +1,4 @@
+3.12 rs
+完成了基础的分类，主页面，darkmode，play按钮和chat界面最基础的绑定
+但是chat界面具体内容没有完成，正在尝试爬chatgpt代码
+此外尝试封装darkmode为单独代码但不成功
