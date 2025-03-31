@@ -1,54 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
-  // 创建头部区域
+  // 创建顶部两个按钮：home 与主题切换
   // ---------------------------
-  const header = document.createElement("header");
-  header.style.cssText = `
-    position: relative;
-    width: 100%;
-    height: 60px;
-    /* 不使用分割线 */
-    /* border-bottom: 1px solid #ccc; */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-  `;
-  
-  // 左上角：使用 home 图标替代返回文字
+  // Home 图标按钮（左上角）
   const homeIcon = document.createElement("img");
-  homeIcon.className = "home-icon";
+  homeIcon.className = "top-button home-button";
   homeIcon.id = "homeIcon";
   homeIcon.src = "../icon/home.png"; // home icon
   homeIcon.alt = "主页";
-  homeIcon.style.cssText = `
-    width: 64px;
-    height: 64px;
-    cursor: pointer;
-    border: none;
-    outline: none;
-    background-color: transparent;
-    display: block;
-  `;
-  header.appendChild(homeIcon);
+  document.body.appendChild(homeIcon);
   
-  // 右上角：主题切换图标
+  // 主题切换图标按钮（右上角）
   const themeToggle = document.createElement("img");
-  themeToggle.className = "theme-toggle";
+  themeToggle.className = "top-button theme-toggle";
   themeToggle.id = "themeToggle";
   themeToggle.src = "../icon/moon.png"; // 初始为月亮图标
   themeToggle.alt = "切换主题";
-  themeToggle.style.cssText = `
-    width: 64px;
-    height: 64px;
-    cursor: pointer;
-    border: none;
-    outline: none;
-    background-color: transparent;
-    display: block;
-  `;
-  header.appendChild(themeToggle);
-  document.body.appendChild(header);
+  document.body.appendChild(themeToggle);
   
   // ---------------------------
   // 创建聊天内容区域
@@ -56,12 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatContainer = document.createElement("div");
   chatContainer.id = "chatContainer";
   chatContainer.className = "chat-container";
-  chatContainer.style.cssText = `
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-  `;
   document.body.appendChild(chatContainer);
   
   // ---------------------------
@@ -69,41 +31,20 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
   const inputArea = document.createElement("div");
   inputArea.className = "input-area";
-  inputArea.style.cssText = `
-    padding: 10px 20px;
-    /* 不使用顶部边框 */
-    /* border-top: 1px solid #ccc; */
-    display: flex;
-    align-items: center;
-  `;
+  document.body.appendChild(inputArea);
   
   // 使用 contenteditable 的 div 作为输入框
   const composer = document.createElement("div");
   composer.id = "composer-background";
   composer.setAttribute("contenteditable", "true");
   composer.setAttribute("data-placeholder", "询问任何问题");
-  composer.style.cssText = `
-    flex: 1;
-    min-height: 44px;
-    max-height: 25vh;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 1.5rem;
-    padding: 10px 14px;
-    background-color: #fff;
-    transition: background-color 0.3s, border-color 0.3s;
-    outline: none; /* 去除聚焦时蓝色边框 */
-    font-size: 16px;
-    color: inherit;
-  `;
   inputArea.appendChild(composer);
-  document.body.appendChild(inputArea);
   
   // ---------------------------
   // 主页导航：点击 home 图标返回主页
   // ---------------------------
   homeIcon.addEventListener("click", () => {
-    window.location.href = "index.html"; // 根据实际路径调整
+    window.location.href = "main.html"; // 根据实际路径调整
   });
   
   // ---------------------------
@@ -113,8 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   themeToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark-mode");
     isDarkMode = !isDarkMode;
-    // 通过 CSS filter 实现图标颜色反转
-    // 同时切换 home 图标也采用 filter 反转（可在 CSS 中统一处理）
+    // 通过 CSS filter 实现图标颜色反转，同时同步 home 图标
     if (isDarkMode) {
       themeToggle.style.filter = "invert(1)";
       homeIcon.style.filter = "invert(1)";
@@ -126,12 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   function updateStylesForMode() {
-    // 更新输入框
+    // 更新输入区域样式
     if (document.body.classList.contains("dark-mode")) {
       composer.style.backgroundColor = "#303030";
       composer.style.borderColor = "#555";
       composer.style.color = "#fff";
-      // 聊天内容背景
       chatContainer.style.backgroundColor = "#222";
     } else {
       composer.style.backgroundColor = "#fff";
@@ -181,23 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
       addChatMessage(text, "user");
       composer.innerHTML = ""; // 清空输入框
       
-      // 伪代码：调用后端 API 获取回复
-      /*
-      fetch('/api/getReply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: text })
-      })
-      .then(response => response.json())
-      .then(data => {
-        addChatMessage(data.reply, "bot");
-      })
-      .catch(error => {
-        console.error("Error:", error);
-      });
-      */
-      
-      // 模拟回复
+      // 模拟回复（此处可替换为实际调用后端 API 的逻辑）
       setTimeout(() => {
         addChatMessage("这是模拟回复内容。", "bot");
       }, 500);
@@ -212,8 +135,8 @@ document.addEventListener("DOMContentLoaded", () => {
     msgDiv.classList.add("chat-message", sender);
     msgDiv.textContent = message;
     
-    // 根据 sender 设置背景颜色和对齐方式：
-    // 用户消息（输入）居右，系统消息居左。
+    // 根据 sender 设置气泡位置：  
+    // 用户消息气泡置右；系统消息气泡置中
     if (sender === "user") {
       if (document.body.classList.contains("dark-mode")) {
         msgDiv.style.backgroundColor = "#444"; // 深灰色
