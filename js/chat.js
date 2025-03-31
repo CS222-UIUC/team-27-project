@@ -119,11 +119,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (text !== "") {
       addChatMessage(text, "user");
       composer.innerHTML = ""; // 清空输入框
-      
+      fetch('http://localhost:3000/api/getReply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: text })
+      })
+      .then(response => response.json())
+      .then(data => {
+        addChatMessage(data.reply, "bot");
+      })
+      .catch(error => {
+        console.error("Error:", error);
+      });
       // 模拟回复（此处可替换为实际调用后端 API 的逻辑）
-      setTimeout(() => {
-        addChatMessage("这是模拟回复内容。", "bot");
-      }, 500);
+      // setTimeout(() => {
+      //   addChatMessage("这是模拟回复内容。", "bot");
+      // }, 500);
     }
   }
   
