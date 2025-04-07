@@ -102,6 +102,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   // ---------------------------
+  // 全局状态：是否正在等待 AI 回复
+  // ---------------------------
+  let isWaiting = false;
+  
+  // ---------------------------
   // 回车键监听（非 Shift+Enter 且非组合状态下提交消息）
   // ---------------------------
   composer.addEventListener("keydown", (e) => {
@@ -115,10 +120,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // 发送消息逻辑
   // ---------------------------
   function sendMessage() {
+    // 如果正在等待回复，直接返回，不再处理
+    if (isWaiting) return;
+
     const text = composer.innerText.trim();
     if (text !== "") {
       addChatMessage(text, "user");
       composer.innerHTML = ""; // 清空输入框
+      isWaiting = true; // 设置等待状态
+
       fetch('http://localhost:3000/api/getReply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -127,14 +137,12 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(response => response.json())
       .then(data => {
         addChatMessage(data.reply, "bot");
+        isWaiting = false; // 收到回复后解除等待状态
       })
       .catch(error => {
         console.error("Error:", error);
+        isWaiting = false; // 出错时也解除等待状态
       });
-      // 模拟回复（此处可替换为实际调用后端 API 的逻辑）
-      // setTimeout(() => {
-      //   addChatMessage("这是模拟回复内容。", "bot");
-      // }, 500);
     }
   }
   
@@ -170,4 +178,23 @@ document.addEventListener("DOMContentLoaded", () => {
     chatContainer.appendChild(msgDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
   }
+  
+  // 新增：初始化聊天，主动获取欢迎问候
+  function initializeChat() {
+    fetch('http://localhost:3000/api/getReply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: "" })
+    })
+    .then(response => response.json())
+    .then(data => {
+      addChatMessage(data.reply, "bot");
+    })
+    .catch(error => {
+      console.error("初始化聊天时出错:", error);
+    });
+  }
+  
+  // 在页面加载完成后主动调用初始化函数
+  initializeChat();
 });
