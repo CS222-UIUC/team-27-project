@@ -1,6 +1,8 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import bodyParser from "body-parser";
+import OpenAI from "openai";
 
 const app = express();
 const port = 3000;
@@ -8,39 +10,45 @@ const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 使用 express.static 提供静态文件服务
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 可选：设置根路径为 index.html
+// 设置根路径为 index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-import bodyParser from "body-parser";
-import fetch from "node-fetch";
-import OpenAI from "openai";
-
-const OPENAI_API_KEY = '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'
-
 app.use(bodyParser.json());
 
+const OPENAI_API_KEY = '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'; // 请替换为你的真实 API KEY
 const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-// POST 接口，接收前端发送的消息
+// 存储对话上下文
+let conversationHistory = [
+  { role: "system", content: "你是一个友好而专业的助手。" }
+];
+
 app.post('/api/getReply', async (req, res) => {
   const userMessage = req.body.question;
+
+  conversationHistory.push({ role: "user", content: userMessage });
+
   try {
-    // 调用 OpenAI 的 ChatGPT API
     const response = await client.chat.completions.create({
-      model: "gpt-4o", // 或者使用 "gpt-4"
-      messages: [
-        { role: "system", content: "" },
-        { role: "user", content: userMessage }
-      ]
+      model: "gpt-4o",
+      messages: conversationHistory,
     });
-    
-    // 从返回结果中提取回复内容
+
     const reply = response.choices[0].message.content;
+
+    // 将助手的回答加入到历史中，便于后续上下文
+    conversationHistory.push({ role: "assistant", content: reply });
+
+    // 控制对话历史长度，避免token超限
+    const maxHistoryLength = 50;
+    if (conversationHistory.length > maxHistoryLength) {
+      conversationHistory = [conversationHistory[0], ...conversationHistory.slice(-maxHistoryLength + 1)];
+    }
+
     res.json({ reply });
   } catch (error) {
     console.error("Error calling OpenAI API:", error);
