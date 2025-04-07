@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 主页导航：点击 home 图标返回主页
   // ---------------------------
   homeIcon.addEventListener("click", () => {
-    window.location.href = "main.html"; // 根据实际路径调整
+    window.location.href = "../index.html"; // 根据实际路径调整
   });
   
   // ---------------------------
