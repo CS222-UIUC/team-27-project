@@ -1,8 +1,16 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+// db/db.js
+import sqlite3 from 'sqlite3';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// 指定数据库文件的路径，SQLite 会在文件不存在时自动创建
+// 计算 __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 指定数据库文件路径（如果文件不存在，SQLite 会自动创建）
 const dbPath = path.resolve(__dirname, 'database.db');
+
+// 直接创建数据库连接，不使用 verbose
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error("数据库连接错误:", err);
@@ -11,7 +19,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-// 初始化数据库，创建 puzzles、tags 和 puzzle_tags 表
+// 初始化数据库，创建相关表
 db.serialize(() => {
   // 创建 puzzles 表
   db.run(`
@@ -54,5 +62,4 @@ db.serialize(() => {
   });
 });
 
-module.exports = db;
-
+export default db;
