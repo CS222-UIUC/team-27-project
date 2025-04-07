@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCreate = document.createElement("button");
   btnCreate.textContent = "Create One";
   buttonContainer.appendChild(btnCreate);
-  btnPlay.addEventListener("click", () => {
+  btnCreate.addEventListener("click", () => {
     window.location.href = "../html/create.html";
   });
 
