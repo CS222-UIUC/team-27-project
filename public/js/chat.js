@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeToggle = document.createElement("img");
   themeToggle.className = "top-button theme-toggle";
   themeToggle.id = "themeToggle";
-  themeToggle.src = "../icon/moon.png"; // 初始为月亮图标
+  // 初始图标会在下方根据 localStorage 设置
   themeToggle.alt = "切换主题";
   document.body.appendChild(themeToggle);
   
@@ -48,19 +48,38 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   // ---------------------------
+  // 新增：初始化主题状态（通过 localStorage 保存跨页面状态）
+  // ---------------------------
+  const savedTheme = localStorage.getItem("theme");
+  let isDarkMode = false;
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    isDarkMode = true;
+  } else {
+    isDarkMode = false;
+  }
+  // 设置主题图标和 home 图标效果与 main.js 保持一致
+  themeToggle.src = isDarkMode ? "../icon/sun.png" : "../icon/moon.png";
+  homeIcon.style.filter = isDarkMode ? "brightness(0) invert(1)" : "none";
+  themeToggle.style.filter = isDarkMode ? "brightness(0) invert(1)" : "none";
+  
+  // ---------------------------
   // 主题切换逻辑
   // ---------------------------
-  let isDarkMode = false;
   themeToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark-mode");
     isDarkMode = !isDarkMode;
-    // 通过 CSS filter 实现图标颜色反转，同时同步 home 图标
+    // 修改图标和 home 图标，同时更新 localStorage
     if (isDarkMode) {
-      themeToggle.style.filter = "invert(1)";
-      homeIcon.style.filter = "invert(1)";
+      themeToggle.src = "../icon/sun.png";
+      homeIcon.style.filter = "brightness(0) invert(1)";
+      themeToggle.style.filter = "brightness(0) invert(1)";
+      localStorage.setItem("theme", "dark");
     } else {
-      themeToggle.style.filter = "none";
+      themeToggle.src = "../icon/moon.png";
       homeIcon.style.filter = "none";
+      themeToggle.style.filter = "none";
+      localStorage.setItem("theme", "light");
     }
     updateStylesForMode();
   });
@@ -102,6 +121,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   // ---------------------------
+  // 全局状态：是否正在等待 AI 回复
+  // ---------------------------
+  let isWaiting = false;
+  
+  // ---------------------------
   // 回车键监听（非 Shift+Enter 且非组合状态下提交消息）
   // ---------------------------
   composer.addEventListener("keydown", (e) => {
@@ -115,10 +139,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // 发送消息逻辑
   // ---------------------------
   function sendMessage() {
+    // 如果正在等待回复，直接返回，不再处理
+    if (isWaiting) return;
+
     const text = composer.innerText.trim();
     if (text !== "") {
       addChatMessage(text, "user");
       composer.innerHTML = ""; // 清空输入框
+      isWaiting = true; // 设置等待状态
+
       fetch('http://localhost:3000/api/getReply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -127,14 +156,12 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(response => response.json())
       .then(data => {
         addChatMessage(data.reply, "bot");
+        isWaiting = false; // 收到回复后解除等待状态
       })
       .catch(error => {
         console.error("Error:", error);
+        isWaiting = false; // 出错时也解除等待状态
       });
-      // 模拟回复（此处可替换为实际调用后端 API 的逻辑）
-      // setTimeout(() => {
-      //   addChatMessage("这是模拟回复内容。", "bot");
-      // }, 500);
     }
   }
   
@@ -170,4 +197,23 @@ document.addEventListener("DOMContentLoaded", () => {
     chatContainer.appendChild(msgDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
   }
+  
+  // 新增：初始化聊天，主动获取欢迎问候
+  function initializeChat() {
+    fetch('http://localhost:3000/api/getReply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: "" })
+    })
+    .then(response => response.json())
+    .then(data => {
+      addChatMessage(data.reply, "bot");
+    })
+    .catch(error => {
+      console.error("初始化聊天时出错:", error);
+    });
+  }
+  
+  // 在页面加载完成后主动调用初始化函数
+  initializeChat();
 });
