@@ -1,123 +1,163 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // ---------------------------
-    // 创建顶部两个按钮：home 与主题切换
-    // ---------------------------
-    // Home 图标按钮（左上角）
-    const homeIcon = document.createElement("img");
-    homeIcon.className = "top-button home-button";
-    homeIcon.id = "homeIcon";
-    homeIcon.src = "../icon/home.png";
-    homeIcon.alt = "主页";
-    document.body.appendChild(homeIcon);
-  
-    // 主题切换图标按钮（右上角）
-    const themeToggle = document.createElement("img");
-    themeToggle.className = "top-button theme-toggle";
-    themeToggle.id = "themeToggle";
-    themeToggle.src = "../icon/moon.png"; // 初始为月亮图标
-    themeToggle.alt = "切换主题";
-    document.body.appendChild(themeToggle);
-  
-    // 主页导航：点击 home 图标返回主页
-    homeIcon.addEventListener("click", () => {
-      window.location.href = "../index.html"; // 根据实际路径调整
-    });
-  
-    // ---------------------------
-    // 主题切换逻辑
-    // ---------------------------
-    let isDarkMode = false;
-    themeToggle.addEventListener("click", () => {
-      document.body.classList.toggle("dark-mode");
-      isDarkMode = !isDarkMode;
-      // 通过 CSS filter 实现图标颜色反转，同时同步 home 图标
-      if (isDarkMode) {
-        themeToggle.style.filter = "invert(1)";
-        homeIcon.style.filter = "invert(1)";
-      } else {
-        themeToggle.style.filter = "none";
-        homeIcon.style.filter = "none";
-      }
-      updateStylesForMode();
-    });
-  
-    // ---------------------------
-    // 创建中间的方框（类似表格的样式）
-    // ---------------------------
-    const puzzleBox = document.createElement("div");
-    puzzleBox.id = "puzzleBox";
-    // 设置方框样式
-    puzzleBox.style.width = "400px";
-    puzzleBox.style.margin = "50px auto"; // 居中并设置上边距
-    puzzleBox.style.padding = "20px";
-    puzzleBox.style.border = "1px solid #ccc";
-    puzzleBox.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
-    puzzleBox.style.display = "flex";
-    puzzleBox.style.flexDirection = "column";
-    puzzleBox.style.alignItems = "center";
-    
-    // 在方框最上面添加居中的标题
-    const header = document.createElement("h2");
-    header.textContent = "Create Your Own Puzzle";
-    header.style.textAlign = "center";
-    header.style.width = "100%";
-    puzzleBox.appendChild(header);
-    
-    // 可选：添加一个内容区域，未来可用来放置拼图元素或其他内容
-    const contentArea = document.createElement("div");
-    contentArea.id = "puzzleContent";
-    contentArea.style.width = "100%";
-    contentArea.style.height = "200px"; // 示例高度
-    contentArea.style.border = "1px solid #ddd";
-    contentArea.style.margin = "20px 0";
-    contentArea.style.display = "flex";
-    contentArea.style.justifyContent = "center";
-    contentArea.style.alignItems = "center";
-    contentArea.textContent = "Puzzle content area";
-    puzzleBox.appendChild(contentArea);
-    
-    // 创建 Submit 按钮，放在方框底部
-    const submitButton = document.createElement("button");
-    submitButton.id = "submitButton";
-    submitButton.textContent = "Submit";
-    submitButton.style.padding = "10px 20px";
-    submitButton.style.fontSize = "16px";
-    submitButton.style.cursor = "pointer";
-    puzzleBox.appendChild(submitButton);
-    
-    // 将方框添加到页面
-    document.body.appendChild(puzzleBox);
-    
-    // Submit 按钮点击事件处理
-    submitButton.addEventListener("click", () => {
-      alert("Puzzle submitted!");
-    });
-    
-    // ---------------------------
-    // 根据主题更新页面样式
-    // ---------------------------
-    function updateStylesForMode() {
-      if (document.body.classList.contains("dark-mode")) {
-        document.body.style.backgroundColor = "#121212";
-        puzzleBox.style.backgroundColor = "#222";
-        puzzleBox.style.color = "#fff";
-        contentArea.style.backgroundColor = "#333";
-        contentArea.style.borderColor = "#555";
-        submitButton.style.backgroundColor = "#444";
-        submitButton.style.color = "#fff";
-      } else {
-        document.body.style.backgroundColor = "#fff";
-        puzzleBox.style.backgroundColor = "#f9f9f9";
-        puzzleBox.style.color = "#000";
-        contentArea.style.backgroundColor = "#fff";
-        contentArea.style.borderColor = "#ccc";
-        submitButton.style.backgroundColor = "#f0f0f0";
-        submitButton.style.color = "#000";
-      }
+  // ---------------------------
+  // Create the top two buttons: home and theme toggle
+  // ---------------------------
+  // Home icon button (top-left)
+  const homeIcon = document.createElement("img");
+  homeIcon.className = "top-button home-button";
+  homeIcon.id = "homeIcon";
+  homeIcon.src = "../icon/home.png";
+  homeIcon.alt = "Home";
+  document.body.appendChild(homeIcon);
+
+  // Theme toggle icon button (top-right)
+  const themeToggle = document.createElement("img");
+  themeToggle.className = "top-button theme-toggle";
+  themeToggle.id = "themeToggle";
+  themeToggle.src = "../icon/moon.png"; // initial icon: moon
+  themeToggle.alt = "Toggle Theme";
+  document.body.appendChild(themeToggle);
+
+  // Home navigation: clicking the home icon returns to the home page
+  homeIcon.addEventListener("click", () => {
+    window.location.href = "../index.html"; // adjust path as necessary
+  });
+
+  // ---------------------------
+  // Theme toggle logic
+  // ---------------------------
+  let isDarkMode = false;
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    isDarkMode = !isDarkMode;
+    // Invert icon colors using CSS filter, syncing both icons
+    if (isDarkMode) {
+      themeToggle.style.filter = "invert(1)";
+      homeIcon.style.filter = "invert(1)";
+    } else {
+      themeToggle.style.filter = "none";
+      homeIcon.style.filter = "none";
     }
-    
-    // 初始调用更新主题样式
     updateStylesForMode();
   });
+
+  // ---------------------------
+  // Create the middle box (similar to a table) and enlarge it
+  // ---------------------------
+  const puzzleBox = document.createElement("div");
+  puzzleBox.id = "puzzleBox";
+  // Adjust the box style
+  puzzleBox.style.width = "600px";            // Enlarged width
+  puzzleBox.style.margin = "50px auto";         // Centered with top margin
+  puzzleBox.style.padding = "20px";
+  puzzleBox.style.border = "1px solid #ccc";
+  puzzleBox.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
+  puzzleBox.style.display = "flex";
+  puzzleBox.style.flexDirection = "column";
+  puzzleBox.style.alignItems = "center";
+
+  // Add a centered header at the top of the box
+  const header = document.createElement("h2");
+  header.textContent = "Create Your Own Puzzle";
+  header.style.textAlign = "center";
+  header.style.width = "100%";
+  puzzleBox.appendChild(header);
+
+  // ---------------------------
+  // Add "The puzzle" input area
+  // ---------------------------
+  const puzzleLabel = document.createElement("label");
+  puzzleLabel.textContent = "The puzzle:";
+  puzzleLabel.style.width = "100%";
+  puzzleLabel.style.margin = "10px 0 5px 0";
+  puzzleLabel.style.fontWeight = "bold";
+  puzzleBox.appendChild(puzzleLabel);
+
+  const puzzleInput = document.createElement("textarea");
+  puzzleInput.id = "puzzleInput";
+  puzzleInput.style.width = "100%";
+  puzzleInput.style.height = "100px";
+  puzzleInput.style.padding = "10px";
+  puzzleInput.placeholder = "Enter the puzzle content";
+  puzzleInput.style.boxSizing = "border-box";
+  puzzleBox.appendChild(puzzleInput);
+
+  // ---------------------------
+  // Add "The whole Story" input area
+  // ---------------------------
+  const storyLabel = document.createElement("label");
+  storyLabel.textContent = "The whole Story:";
+  storyLabel.style.width = "100%";
+  storyLabel.style.margin = "10px 0 5px 0";
+  storyLabel.style.fontWeight = "bold";
+  puzzleBox.appendChild(storyLabel);
+
+  const storyInput = document.createElement("textarea");
+  storyInput.id = "storyInput";
+  storyInput.style.width = "100%";
+  storyInput.style.height = "150px";
+  storyInput.style.padding = "10px";
+  storyInput.placeholder = "Enter the story content";
+  storyInput.style.boxSizing = "border-box";
+  puzzleBox.appendChild(storyInput);
+
+  
+  // ---------------------------
+  // Create the Submit button at the bottom of the box
+  // ---------------------------
+  const submitButton = document.createElement("button");
+  submitButton.id = "submitButton";
+  submitButton.textContent = "Submit";
+  submitButton.style.padding = "10px 20px";
+  submitButton.style.fontSize = "16px";
+  submitButton.style.cursor = "pointer";
+  submitButton.style.marginTop = "20px";
+
+  const spacer = document.createElement("div");
+  spacer.style.height = "20px";
+  puzzleBox.appendChild(spacer);
+
+
+  puzzleBox.appendChild(submitButton);
+
+  // Append the box to the page
+  document.body.appendChild(puzzleBox);
+
+  // Submit button click event handler
+  submitButton.addEventListener("click", () => {
+    alert(
+      "Puzzle submitted!\n" +
+      "The puzzle: " + puzzleInput.value + "\n" +
+      "The whole Story: " + storyInput.value
+    );
+  });
+
+  // ---------------------------
+  // Update styles based on the current theme (light/dark)
+  // ---------------------------
+  function updateStylesForMode() {
+    if (document.body.classList.contains("dark-mode")) {
+      document.body.style.backgroundColor = "#121212";
+      puzzleBox.style.backgroundColor = "#222";
+      puzzleBox.style.color = "#fff";
+      contentArea.style.backgroundColor = "#333";
+      contentArea.style.borderColor = "#555";
+      submitButton.style.backgroundColor = "#444";
+      submitButton.style.color = "#fff";
+    } else {
+      document.body.style.backgroundColor = "#fff";
+      puzzleBox.style.backgroundColor = "#f9f9f9";
+      puzzleBox.style.color = "#000";
+      contentArea.style.backgroundColor = "#fff";
+      contentArea.style.borderColor = "#ccc";
+      submitButton.style.backgroundColor = "#f0f0f0";
+      submitButton.style.color = "#000";
+    }
+  }
+
+  // Initial call to set the theme styles
+  updateStylesForMode();
+});
+
   
   
