@@ -40,6 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCreate = document.createElement("button");
   btnCreate.textContent = "Create One";
   buttonContainer.appendChild(btnCreate);
+  btnCreate.addEventListener("click", () => {
+    window.location.href = "../html/create.html";
+  });
 
   // 主题切换逻辑：切换 dark-mode 类，并根据状态更改图标
   let isDarkMode = false;
