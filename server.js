@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
 import OpenAI from "openai";
+import db from "./db/db.js";  // Your existing db.js file for SQLite setup
 
 const app = express();
 const port = 3000;
@@ -10,19 +11,25 @@ const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Serve static files from the public directory.
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 设置根路径为 index.html
+// Use body-parser middleware to parse JSON request bodies.
+app.use(bodyParser.json());
+
+// 默认根路径指向 public 目录下的 index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.use(bodyParser.json());
+// ------------------------
+// OpenAI / 海龟汤 游戏部分
+// ------------------------
 
-const OPENAI_API_KEY = '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'; // 请替换为你的真实 API KEY
-const client = new OpenAI({ apiKey: OPENAI_API_KEY });
+const OPENAI_API_KEY = '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'; // Replace with your real API key in production!
+const openaiClient = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-// 存储对话上下文
+// 存储对话上下文（全局变量，demo用；生产环境建议使用其他会话管理方式）
 let conversationHistory = [
   { role: "system", content: "你现在扮演“海龟汤大师”，负责主持与裁判“海龟汤”游戏。你的职责如下：\n1. 提供看似荒诞的‘谎面’，背后隐藏合理的故事；\n2. 引导玩家通过提问猜测逐步还原真相；\n3. 你只能回答‘是’、‘否’或‘不相关’，必要时补充提示；\n4. 风格偏向悬疑、惊悚、反转和黑色幽默；\n请先向玩家打个招呼并问他们希望以什么风格开始游戏。" }
 ];
@@ -30,28 +37,26 @@ let conversationHistory = [
 app.post('/api/getReply', async (req, res) => {
   const userMessage = req.body.question;
 
-  // 如果是首次对话，可以先发出问候
+  // 若是首次对话，则先发出初始问候
   if (conversationHistory.length === 1) {
-    // 先添加 AI 的初始问候
     const initialGreeting = "欢迎来到海龟汤游戏，我是海龟汤大师。今天你想以哪种风格开始？冷案、密室、都市怪谈还是其他？";
     conversationHistory.push({ role: "assistant", content: initialGreeting });
     return res.json({ reply: initialGreeting });
   }
 
+  // 将用户消息加入对话历史
   conversationHistory.push({ role: "user", content: userMessage });
 
   try {
-    const response = await client.chat.completions.create({
-      model: "gpt-4o",
+    const response = await openaiClient.chat.completions.create({
+      model: "gpt-4o",  // Adjust the model if necessary
       messages: conversationHistory,
     });
 
     const reply = response.choices[0].message.content;
-
-    // 将助手的回答加入到历史中，便于后续上下文
     conversationHistory.push({ role: "assistant", content: reply });
 
-    // 控制对话历史长度，避免 token 超限
+    // 为防止 token 超限，限制历史对话长度（保留系统初始消息）
     const maxHistoryLength = 50;
     if (conversationHistory.length > maxHistoryLength) {
       conversationHistory = [conversationHistory[0], ...conversationHistory.slice(-maxHistoryLength + 1)];
@@ -64,7 +69,45 @@ app.post('/api/getReply', async (req, res) => {
   }
 });
 
+// ------------------------
+// Puzzle 上传部分
+// ------------------------
 
+// POST /api/puzzles：保存用户提交的 Puzzle（例如通过 create.html 上传的内容）  
+app.post('/api/puzzles', (req, res) => {
+  const { puzzleInput, storyInput } = req.body;
+
+  if (!puzzleInput || !storyInput) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  // 这里我们将 puzzleInput 映射到 puzzles 表中的 title 字段，
+  // 将 storyInput 映射到 description 字段，并将 solution 字段设为空字符串。
+  db.run(
+    `INSERT INTO puzzles (title, description, solution) VALUES (?, ?, ?)`,
+    [puzzleInput, storyInput, ''],
+    function(err) {
+      if (err) {
+        console.error("数据库错误:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+      res.json({ id: this.lastID, message: "Puzzle saved" });
+    }
+  );
+});
+
+// GET /api/puzzles：返回所有已保存的 Puzzle（以 JSON 格式显示）
+app.get('/api/puzzles', (req, res) => {
+  db.all(`SELECT * FROM puzzles ORDER BY created_at DESC`, (err, rows) => {
+    if (err) {
+      console.error("数据库错误:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(rows);
+  });
+});
+
+// 启动服务器
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
