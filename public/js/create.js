@@ -111,13 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
   submitButton.style.padding = "10px 20px";
   submitButton.style.fontSize = "16px";
   submitButton.style.cursor = "pointer";
-  submitButton.style.marginTop = "20px";
-
-  const spacer = document.createElement("div");
-  spacer.style.height = "20px";
-  puzzleBox.appendChild(spacer);
-
-
   puzzleBox.appendChild(submitButton);
 
   // Append the box to the page
