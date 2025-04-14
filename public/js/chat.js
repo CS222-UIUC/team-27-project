@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeToggle = document.createElement("img");
   themeToggle.className = "top-button theme-toggle";
   themeToggle.id = "themeToggle";
-  themeToggle.src = "../icon/moon.png"; // 初始为月亮图标
+  // 初始图标会在下方根据 localStorage 设置
   themeToggle.alt = "切换主题";
   document.body.appendChild(themeToggle);
   
@@ -48,19 +48,38 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   // ---------------------------
+  // 新增：初始化主题状态（通过 localStorage 保存跨页面状态）
+  // ---------------------------
+  const savedTheme = localStorage.getItem("theme");
+  let isDarkMode = false;
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    isDarkMode = true;
+  } else {
+    isDarkMode = false;
+  }
+  // 设置主题图标和 home 图标效果与 main.js 保持一致
+  themeToggle.src = isDarkMode ? "../icon/sun.png" : "../icon/moon.png";
+  homeIcon.style.filter = isDarkMode ? "brightness(0) invert(1)" : "none";
+  themeToggle.style.filter = isDarkMode ? "brightness(0) invert(1)" : "none";
+  
+  // ---------------------------
   // 主题切换逻辑
   // ---------------------------
-  let isDarkMode = false;
   themeToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark-mode");
     isDarkMode = !isDarkMode;
-    // 通过 CSS filter 实现图标颜色反转，同时同步 home 图标
+    // 修改图标和 home 图标，同时更新 localStorage
     if (isDarkMode) {
-      themeToggle.style.filter = "invert(1)";
-      homeIcon.style.filter = "invert(1)";
+      themeToggle.src = "../icon/sun.png";
+      homeIcon.style.filter = "brightness(0) invert(1)";
+      themeToggle.style.filter = "brightness(0) invert(1)";
+      localStorage.setItem("theme", "dark");
     } else {
-      themeToggle.style.filter = "none";
+      themeToggle.src = "../icon/moon.png";
       homeIcon.style.filter = "none";
+      themeToggle.style.filter = "none";
+      localStorage.setItem("theme", "light");
     }
     updateStylesForMode();
   });
