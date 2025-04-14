@@ -40,7 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCreate = document.createElement("button");
   btnCreate.textContent = "Create One";
   buttonContainer.appendChild(btnCreate);
-  btnPlay.addEventListener("click", () => {
+  
+  // 正确：为 btnCreate 添加跳转事件
+  btnCreate.addEventListener("click", () => {
     window.location.href = "../html/create.html";
   });
 
