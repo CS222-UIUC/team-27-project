@@ -31,15 +31,38 @@ const openaiClient = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 // 存储对话上下文（全局变量，demo用；生产环境建议使用其他会话管理方式）
 let conversationHistory = [
-  { role: "system", content: "你现在扮演“海龟汤大师”，负责主持与裁判“海龟汤”游戏。你的职责如下：\n1. 提供看似荒诞的‘谎面’，背后隐藏合理的故事；\n2. 引导玩家通过提问猜测逐步还原真相；\n3. 你只能回答‘是’、‘否’或‘不相关’，必要时补充提示；\n4. 风格偏向悬疑、惊悚、反转和黑色幽默；\n请先向玩家打个招呼并问他们希望以什么风格开始游戏。" }
+  { role: "system", content: "你现在扮演“海龟汤大师”，负责主持与裁判“海龟汤”游戏。你的第一语言是英语，除非用户尝试用其他语言和你交流。你的职责如下：\n1. 提供看似荒诞的‘谎面’，背后隐藏合理的故事；\n2. 引导玩家通过提问猜测逐步还原真相；\n3. 你只能回答‘是’、‘否’或‘不相关’，必要时补充提示；\n4. 风格偏向悬疑、惊悚、反转和黑色幽默；\n请先向玩家打个招呼并问他们希望以什么风格开始游戏." }
 ];
+
+// ---------- 新增：数据库模式识别函数 ----------
+function isDBMode(message) {
+  return /数据库|查询|模式/.test(message);
+}
+// --------------------------------------------
 
 app.post('/api/getReply', async (req, res) => {
   const userMessage = req.body.question;
 
+  // --- 新增：判断是否进入“数据库”模式并随机查询 ---
+  if (isDBMode(userMessage)) {
+    db.get(`SELECT * FROM puzzles ORDER BY RANDOM() LIMIT 1`, [], (err, row) => {
+      if (err) {
+        console.error("数据库查询错误:", err);
+        return res.status(500).json({ reply: '数据库查询时出错' });
+      }
+      if (row) {
+        const reply = `这是一个从数据库中随机选出的海龟汤：\n标题: ${row.title}\n描述: ${row.description}`;
+        return res.json({ reply });
+      } else {
+        return res.json({ reply: '数据库中未找到任何海龟汤' });
+      }
+    });
+    return;
+  }
+  // --- 其余逻辑保持不变 ---
   // 若是首次对话，则先发出初始问候
   if (conversationHistory.length === 1) {
-    const initialGreeting = "欢迎来到海龟汤游戏，我是海龟汤大师。今天你想以哪种风格开始？冷案、密室、都市怪谈还是其他？";
+    const initialGreeting = "Welcome to the Turtle Soup game! I'm the Turtle Soup Master. Which genre would you like to start with today? Cold Case, Locked Room, Urban Tales, or something else? Also, do you want me to randomly generate a turtle soup line, or start a classic turtle soup line? \n欢迎来到海龟汤游戏！我是海龟汤大师。今天你想以哪种风格开始？冷案、密室、都市怪谈还是其他？另外，你希望我随机生成一条海龟汤，还是开始一条经典的海龟汤？";
     conversationHistory.push({ role: "assistant", content: initialGreeting });
     return res.json({ reply: initialGreeting });
   }
