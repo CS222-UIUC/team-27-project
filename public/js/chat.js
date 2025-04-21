@@ -171,6 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function addChatMessage(message, sender) {
     const msgDiv = document.createElement("div");
     msgDiv.classList.add("chat-message", sender);
+    msgDiv.style.whiteSpace = 'pre-wrap';
     msgDiv.textContent = message;
     
     // 根据 sender 设置气泡位置：  
