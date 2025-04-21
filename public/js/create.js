@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
-  // Create the top two buttons: home and theme toggle
+  // 创建顶部两个按钮：home 与主题切换
   // ---------------------------
   const homeIcon = document.createElement("img");
   homeIcon.className = "top-button home-button";
@@ -12,30 +12,54 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeToggle = document.createElement("img");
   themeToggle.className = "top-button theme-toggle";
   themeToggle.id = "themeToggle";
-  themeToggle.src = "../icon/moon.png";
   themeToggle.alt = "Toggle Theme";
   document.body.appendChild(themeToggle);
 
+  // ---------------------------
+  // Home 按钮：返回主页
+  // ---------------------------
   homeIcon.addEventListener("click", () => {
-    window.location.href = "../index.html"; // Adjust if you have an index page
+    window.location.href = "../index.html";
   });
 
+  // ---------------------------
+  // 初始化主题（读取 localStorage）
+  // ---------------------------
+  const savedTheme = localStorage.getItem("theme");
   let isDarkMode = false;
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    isDarkMode = true;
+  } else {
+    isDarkMode = false;
+  }
+  themeToggle.src = isDarkMode ? "../icon/sun.png" : "../icon/moon.png";
+  homeIcon.style.filter  = isDarkMode ? "brightness(0) invert(1)" : "none";
+  themeToggle.style.filter = isDarkMode ? "brightness(0) invert(1)" : "none";
+
+  // ---------------------------
+  // 主题切换逻辑（与 chat.js 一致）
+  // ---------------------------
   themeToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark-mode");
     isDarkMode = !isDarkMode;
+
     if (isDarkMode) {
-      themeToggle.style.filter = "invert(1)";
-      homeIcon.style.filter = "invert(1)";
+      themeToggle.src = "../icon/sun.png";
+      homeIcon.style.filter  = "brightness(0) invert(1)";
+      themeToggle.style.filter = "brightness(0) invert(1)";
+      localStorage.setItem("theme", "dark");
     } else {
+      themeToggle.src = "../icon/moon.png";
+      homeIcon.style.filter  = "none";
       themeToggle.style.filter = "none";
-      homeIcon.style.filter = "none";
+      localStorage.setItem("theme", "light");
     }
     updateStylesForMode();
   });
 
   // ---------------------------
-  // Create the middle box and style it
+  // 创建中间输入框等元素
   // ---------------------------
   const puzzleBox = document.createElement("div");
   puzzleBox.id = "puzzleBox";
@@ -48,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.style.flexDirection = "column";
   puzzleBox.style.alignItems = "center";
 
-  // Header
   const header = document.createElement("h2");
   header.textContent = "Create Your Own Puzzle";
   header.style.textAlign = "center";
@@ -56,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(header);
 
   // ---------------------------
-  // Add "The puzzle" input area
+  // “The puzzle” 输入区
   // ---------------------------
   const puzzleLabel = document.createElement("label");
   puzzleLabel.textContent = "The puzzle:";
@@ -75,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(puzzleInput);
 
   // ---------------------------
-  // Add "The whole Story" input area
+  // “The whole Story” 输入区
   // ---------------------------
   const storyLabel = document.createElement("label");
   storyLabel.textContent = "The whole Story:";
@@ -94,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(storyInput);
 
   // ---------------------------
-  // Create the Submit button
+  // Submit 按钮
   // ---------------------------
   const submitButton = document.createElement("button");
   submitButton.id = "submitButton";
@@ -108,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.appendChild(puzzleBox);
 
   // ---------------------------
-  // Submit button event: send the data via POST
+  // Submit 事件：POST 数据
   // ---------------------------
   submitButton.addEventListener("click", () => {
     const puzzleText = puzzleInput.value;
@@ -124,7 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(response => response.json())
       .then(data => {
         alert("Puzzle submitted and saved with id: " + data.id);
-        // 清空输入框
         puzzleInput.value = "";
         storyInput.value = "";
       })
@@ -134,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   // ---------------------------
-  // Update theme styles (已删除 contentArea 的引用)
+  // 根据主题更新样式
   // ---------------------------
   function updateStylesForMode() {
     if (document.body.classList.contains("dark-mode")) {
