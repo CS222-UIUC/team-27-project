@@ -198,9 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
         storyInput: storyText,
         tags: tags
       })
-
-      body: JSON.stringify({ puzzleInput: puzzleText, storyInput: storyText })
-
+      
     })
       .then(response => response.json())
       .then(data => {
