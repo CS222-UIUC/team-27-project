@@ -36,7 +36,16 @@ let conversationHistory = [
 
 // ---------- 新增：数据库模式识别函数 ----------
 function isDBMode(message) {
-  return /数据库|查询|模式/.test(message);
+  const patterns = [
+    '数据库', '查询', 
+    '经典', '经典的', '经典版', 'classic',
+    'exist', 'exists', '存在的', 
+    '网上的', 'on Internet',
+    'tiktok', 'bilibili', '抖音', 'b站', 'video', '视频', 
+    '烧脑', 'brain', 'brain teaser',
+  ];
+  const regex = new RegExp(patterns.join('|'), 'i');
+  return regex.test(message);
 }
 // --------------------------------------------
 
