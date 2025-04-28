@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.id = "puzzleBox";
   // Adjust the box style
   puzzleBox.style.width = "600px";            // Enlarged width
-  puzzleBox.style.margin = "50px auto";         // Centered with top margin
+  puzzleBox.style.margin = "100px auto";         // Centered with top margin
   puzzleBox.style.padding = "20px";
   puzzleBox.style.border = "1px solid #ccc";
   puzzleBox.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
@@ -101,6 +101,66 @@ document.addEventListener("DOMContentLoaded", () => {
   storyInput.style.boxSizing = "border-box";
   puzzleBox.appendChild(storyInput);
 
+  // ---------------------------
+  // 添加 "Tags" 输入区域
+  // ---------------------------
+  const tagsLabel = document.createElement("label");
+  tagsLabel.textContent = "Tags:";
+  tagsLabel.style.width = "100%";
+  tagsLabel.style.margin = "10px 0 5px 0";
+  tagsLabel.style.fontWeight = "bold";
+  puzzleBox.appendChild(tagsLabel);
+
+  // Tag输入框
+  const tagInput = document.createElement("input");
+  tagInput.type = "text";
+  tagInput.placeholder = "Type a tag and press Enter";
+  tagInput.style.width = "100%";
+  tagInput.style.padding = "10px";
+  tagInput.style.boxSizing = "border-box";
+  puzzleBox.appendChild(tagInput);
+
+  // 显示已添加的Tag区域
+  const tagsContainer = document.createElement("div");
+  tagsContainer.style.width = "100%";
+  tagsContainer.style.marginTop = "10px";
+  tagsContainer.style.display = "flex";
+  tagsContainer.style.flexWrap = "wrap"; // 超出换行
+  puzzleBox.appendChild(tagsContainer);
+ 
+  const tags = []; // 保存所有输入的tag
+
+  tagInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && tagInput.value.trim() !== "") {
+      event.preventDefault(); // 防止回车提交表单
+      const tagText = tagInput.value.trim();
+
+      if (!tags.includes(tagText)) { // 防止重复tag
+        tags.push(tagText);
+
+        const tagElement = document.createElement("span");
+        tagElement.textContent = tagText;
+        tagElement.style.padding = "5px 10px";
+        tagElement.style.margin = "5px";
+        tagElement.style.backgroundColor = "#ddd";
+        tagElement.style.borderRadius = "15px";
+        tagElement.style.fontSize = "14px";
+
+        if (isDarkMode) {
+          tagElement.style.backgroundColor = "#555";
+          tagElement.style.color = "#fff";
+        } else {
+          tagElement.style.backgroundColor = "#ddd";
+          tagElement.style.color = "#000";
+        }
+        
+        tagsContainer.appendChild(tagElement);
+      }
+
+      tagInput.value = ""; // 清空输入框
+    }
+  });
+
   
   // ---------------------------
   // Create the Submit button at the bottom of the box
@@ -121,9 +181,11 @@ document.addEventListener("DOMContentLoaded", () => {
     alert(
       "Puzzle submitted!\n" +
       "The puzzle: " + puzzleInput.value + "\n" +
-      "The whole Story: " + storyInput.value
+      "The whole Story: " + storyInput.value + "\n" +
+      "Tags: " + tags.join(", ")
     );
   });
+  
 
   // ---------------------------
   // Update styles based on the current theme (light/dark)
