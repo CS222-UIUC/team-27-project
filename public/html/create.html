@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>创建拼图界面</title>
   <style>
-    /* 全局基础样式 */
     body {
       margin: 0;
       padding: 0;
@@ -15,8 +14,8 @@
       display: flex;
       flex-direction: column;
       transition: background-color 0.3s, color 0.3s;
+      position: relative;
     }
-    /* 两个按钮的公共样式 */
     .top-button {
       position: absolute;
       top: 20px;
@@ -27,36 +26,173 @@
       outline: none;
       background-color: transparent;
     }
-    /* 左上角按钮 */
-    .home-button {
-      left: 20px;
-    }
-    /* 右上角按钮 */
-    .theme-toggle {
-      right: 20px;
-    }
-    /* 聊天内容区域（如果需要复用） */
-    .chat-container {
-      flex: 1;
-      overflow-y: auto;
+    .home-button { left: 20px; }
+    .theme-toggle { right: 20px; }
+    #puzzleBox {
+      width: 600px;
+      margin: 100px auto;
       padding: 20px;
-      background-color: #f9f9f9;
-      margin-top: 100px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
+      align-items: center;
+      background-color: #f9f9f9;
     }
-    /* 深色模式下 */
+    label {
+      width: 100%;
+      margin: 10px 0 5px 0;
+      font-weight: bold;
+    }
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    #tagsContainer {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .tag {
+      padding: 5px 10px;
+      margin: 5px;
+      background-color: #ddd;
+      border-radius: 15px;
+      font-size: 14px;
+      display: inline-block;
+    }
+    #submitButton {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
     body.dark-mode {
-      background-color: #000;
+      background-color: #121212;
       color: #fff;
     }
   </style>
 </head>
+
 <body>
-  <!-- 页面结构由 create.js 动态生成 -->
-  <script src="../js/create.js"></script> 
-    
-    
+  <!-- 顶部两个按钮 -->
+  <img id="homeIcon" class="top-button home-button" src="../icon/home.png" alt="主页">
+  <img id="themeToggle" class="top-button theme-toggle" src="../icon/moon.png" alt="切换主题">
+
+  <!-- 中间的拼图表单 -->
+  <div id="puzzleBox">
+    <h2>Create Your Own Puzzle</h2>
+
+    <label for="puzzleInput">The puzzle:</label>
+    <textarea id="puzzleInput" placeholder="Please type in the puzzle"></textarea>
+
+    <label for="storyInput">The whole Story:</label>
+    <textarea id="storyInput" placeholder="Please type in the whole story behind your puzzle"></textarea>
+
+    <label for="tagInput">Tags:</label>
+    <input id="tagInput" type="text" placeholder="Type a tag and press Enter">
+    <div id="tagsContainer"></div>
+
+    <button id="submitButton">Submit</button>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const homeIcon = document.getElementById("homeIcon");
+      const themeToggle = document.getElementById("themeToggle");
+      const tagInput = document.getElementById("tagInput");
+      const tagsContainer = document.getElementById("tagsContainer");
+      const submitButton = document.getElementById("submitButton");
+      const puzzleInput = document.getElementById("puzzleInput");
+      const storyInput = document.getElementById("storyInput");
+      const puzzleBox = document.getElementById("puzzleBox");
+
+      homeIcon.addEventListener("click", () => {
+        window.location.href = "../index.html";
+      });
+
+      let isDarkMode = false;
+      let tags = [];
+
+      themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        isDarkMode = !isDarkMode;
+
+        if (isDarkMode) {
+          themeToggle.style.filter = "invert(1)";
+          homeIcon.style.filter = "invert(1)";
+        } else {
+          themeToggle.style.filter = "none";
+          homeIcon.style.filter = "none";
+        }
+        updateStylesForMode();
+      });
+
+      tagInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && tagInput.value.trim() !== "") {
+          event.preventDefault();
+          const tagText = tagInput.value.trim();
+          if (!tags.includes(tagText)) {
+            tags.push(tagText);
+            const tagElement = document.createElement("span");
+            tagElement.className = "tag";
+            tagElement.textContent = tagText;
+
+            if (isDarkMode) {
+              tagElement.style.backgroundColor = "#555";
+              tagElement.style.color = "#fff";
+            }
+
+            tagsContainer.appendChild(tagElement);
+          }
+          tagInput.value = "";
+        }
+      });
+
+      submitButton.addEventListener("click", () => {
+        alert(
+          "Puzzle submitted!\n" +
+          "The puzzle: " + puzzleInput.value + "\n" +
+          "The whole Story: " + storyInput.value + "\n" +
+          "Tags: " + tags.join(", ")
+        );
+      });
+
+      function updateStylesForMode() {
+        if (isDarkMode) {
+          document.body.style.backgroundColor = "#121212";
+          puzzleBox.style.backgroundColor = "#222";
+          puzzleBox.style.color = "#fff";
+          submitButton.style.backgroundColor = "#444";
+          submitButton.style.color = "#fff";
+
+          // 同步已有tags颜色
+          document.querySelectorAll(".tag").forEach(tag => {
+            tag.style.backgroundColor = "#555";
+            tag.style.color = "#fff";
+          });
+        } else {
+          document.body.style.backgroundColor = "#fff";
+          puzzleBox.style.backgroundColor = "#f9f9f9";
+          puzzleBox.style.color = "#000";
+          submitButton.style.backgroundColor = "#f0f0f0";
+          submitButton.style.color = "#000";
+
+          // 同步已有tags颜色
+          document.querySelectorAll(".tag").forEach(tag => {
+            tag.style.backgroundColor = "#ddd";
+            tag.style.color = "#000";
+          });
+        }
+      }
+
+      updateStylesForMode();
+    });
+  </script>
 </body>
 </html>
+
 
