@@ -1,3 +1,4 @@
+// create.js:
 document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
   // 创建顶部两个按钮：home 与主题切换
@@ -117,6 +118,55 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(storyInput);
 
   // ---------------------------
+  // “Tags” 输入区
+  // ---------------------------
+  const tagsLabel = document.createElement("label");
+  tagsLabel.textContent = "Tags:";
+  tagsLabel.style.width = "100%";
+  tagsLabel.style.margin = "10px 0 5px 0";
+  tagsLabel.style.fontWeight = "bold";
+  puzzleBox.appendChild(tagsLabel);
+
+  const tagInput = document.createElement("input");
+  tagInput.type = "text";
+  tagInput.id = "tagInput";
+  tagInput.placeholder = "Enter a tag and press Enter";
+  tagInput.style.width = "100%";
+  tagInput.style.padding = "10px";
+  tagInput.style.boxSizing = "border-box";
+  puzzleBox.appendChild(tagInput);
+
+  const tagsContainer = document.createElement("div");
+  tagsContainer.id = "tagsContainer";
+  tagsContainer.style.width = "100%";
+  tagsContainer.style.marginTop = "10px";
+  tagsContainer.style.display = "flex";
+  tagsContainer.style.flexWrap = "wrap";
+  puzzleBox.appendChild(tagsContainer);
+
+  const tags = [];
+
+  tagInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && tagInput.value.trim() !== "") {
+      event.preventDefault();
+      const tagText = tagInput.value.trim();
+      if (!tags.includes(tagText)) {
+        tags.push(tagText);
+        const tagElement = document.createElement("span");
+        tagElement.textContent = tagText;
+        tagElement.style.padding = "5px 10px";
+        tagElement.style.margin = "5px";
+        tagElement.style.backgroundColor = "#ddd";
+        tagElement.style.borderRadius = "15px";
+        tagElement.style.fontSize = "14px";
+        tagsContainer.appendChild(tagElement);
+      }
+      tagInput.value = "";
+    }
+  });
+
+  // ---------------------------
+
   // Submit 按钮
   // ---------------------------
   const submitButton = document.createElement("button");
@@ -136,19 +186,31 @@ document.addEventListener("DOMContentLoaded", () => {
   submitButton.addEventListener("click", () => {
     const puzzleText = puzzleInput.value;
     const storyText = storyInput.value;
-    
+
     fetch('http://localhost:3000/api/puzzles', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
+
+      body: JSON.stringify({
+        puzzleInput: puzzleText,
+        storyInput: storyText,
+        tags: tags
+      })
+
       body: JSON.stringify({ puzzleInput: puzzleText, storyInput: storyText })
+
     })
       .then(response => response.json())
       .then(data => {
         alert("Puzzle submitted and saved with id: " + data.id);
         puzzleInput.value = "";
         storyInput.value = "";
+
+        tagsContainer.innerHTML = "";
+        tags.length = 0;
+
       })
       .catch(err => {
         alert("Error submitting puzzle: " + err.message);
@@ -165,13 +227,24 @@ document.addEventListener("DOMContentLoaded", () => {
       puzzleBox.style.color = "#fff";
       submitButton.style.backgroundColor = "#444";
       submitButton.style.color = "#fff";
+      // 调暗 dark mode 下的 tag 背景
+      const tagSpans = tagsContainer.querySelectorAll("span");
+      tagSpans.forEach(span => {
+        span.style.backgroundColor = "#555";
+      });
     } else {
       document.body.style.backgroundColor = "#fff";
       puzzleBox.style.backgroundColor = "#f9f9f9";
       puzzleBox.style.color = "#000";
       submitButton.style.backgroundColor = "#f0f0f0";
       submitButton.style.color = "#000";
+      // 还原 light mode 下的 tag 背景
+      const tagSpans = tagsContainer.querySelectorAll("span");
+      tagSpans.forEach(span => {
+        span.style.backgroundColor = "#ddd";
+      });
     }
   }
   updateStylesForMode();
 });
+
