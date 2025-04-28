@@ -60,7 +60,7 @@ app.post('/api/getReply', async (req, res) => {
         return res.status(500).json({ reply: '数据库查询时出错' });
       }
       if (row) {
-        const reply = `这是一个从数据库中随机选出的海龟汤：\n标题: ${row.title}\n描述: ${row.description}`;
+        const reply = `这是一个从数据库中随机选出的海龟汤：\n标题: ${row.title}\n描述: ${row.description}\nTags: ${row.tags || '无'}`;
         return res.json({ reply });
       } else {
         return res.json({ reply: '数据库中未找到任何海龟汤' });
@@ -105,19 +105,21 @@ app.post('/api/getReply', async (req, res) => {
 // Puzzle 上传部分
 // ------------------------
 
-// POST /api/puzzles：保存用户提交的 Puzzle（例如通过 create.html 上传的内容）  
+// POST /api/puzzles：保存用户提交的 Puzzle（新增 titleInput 字段）
 app.post('/api/puzzles', (req, res) => {
-  const { puzzleInput, storyInput } = req.body;
+  const { titleInput, puzzleInput, storyInput, tags } = req.body;
 
-  if (!puzzleInput || !storyInput) {
+  if (!titleInput || !puzzleInput || !storyInput) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  // 这里我们将 puzzleInput 映射到 puzzles 表中的 title 字段，
-  // 将 storyInput 映射到 description 字段，并将 solution 字段设为空字符串。
+  // 将 tags 数组存为逗号分隔字符串
+  const tagsStr = Array.isArray(tags) ? tags.join(',') : '';
+
+  // puzzles 表需事先有 tags TEXT 字段
   db.run(
-    `INSERT INTO puzzles (title, description, solution) VALUES (?, ?, ?)`,
-    [puzzleInput, storyInput, ''],
+    `INSERT INTO puzzles (title, description, solution, tags) VALUES (?, ?, ?, ?)`,
+    [titleInput, puzzleInput, storyInput, tagsStr],
     function(err) {
       if (err) {
         console.error("数据库错误:", err);
@@ -128,9 +130,22 @@ app.post('/api/puzzles', (req, res) => {
   );
 });
 
-// GET /api/puzzles：返回所有已保存的 Puzzle（以 JSON 格式显示）
+
+// GET /api/puzzles：可按 ?tag=xxx 过滤
 app.get('/api/puzzles', (req, res) => {
-  db.all(`SELECT * FROM puzzles ORDER BY created_at DESC`, (err, rows) => {
+  const { tag } = req.query;
+
+  let sql  = `SELECT * FROM puzzles `;
+  const params = [];
+
+  if (tag) {
+    sql += `WHERE tags LIKE ? `;
+    params.push(`%${tag}%`);
+  }
+
+  sql += `ORDER BY created_at DESC`;
+
+  db.all(sql, params, (err, rows) => {
     if (err) {
       console.error("数据库错误:", err);
       return res.status(500).json({ error: "Database error" });
