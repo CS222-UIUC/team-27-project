@@ -166,6 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ---------------------------
+
   // Submit 按钮
   // ---------------------------
   const submitButton = document.createElement("button");
@@ -191,19 +192,25 @@ document.addEventListener("DOMContentLoaded", () => {
       headers: {
         'Content-Type': 'application/json'
       },
+
       body: JSON.stringify({
         puzzleInput: puzzleText,
         storyInput: storyText,
         tags: tags
       })
+
+      body: JSON.stringify({ puzzleInput: puzzleText, storyInput: storyText })
+
     })
       .then(response => response.json())
       .then(data => {
         alert("Puzzle submitted and saved with id: " + data.id);
         puzzleInput.value = "";
         storyInput.value = "";
+
         tagsContainer.innerHTML = "";
         tags.length = 0;
+
       })
       .catch(err => {
         alert("Error submitting puzzle: " + err.message);
@@ -241,6 +248,3 @@ document.addEventListener("DOMContentLoaded", () => {
   updateStylesForMode();
 });
 
-
-  
-  
