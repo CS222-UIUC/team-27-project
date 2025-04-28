@@ -21,7 +21,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 // Initialize database, create tables if they do not exist
 db.serialize(() => {
-  // Create puzzles table
+  // Create puzzles table（新增 tags 字段）
   db.run(`
     CREATE TABLE IF NOT EXISTS puzzles (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,11 +29,20 @@ db.serialize(() => {
       description TEXT NOT NULL,
       solution TEXT NOT NULL,
       difficulty INTEGER DEFAULT 1,
+      tags TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `, (err) => {
     if (err) console.error("创建 puzzles 表出错:", err);
     else console.log("puzzles 表已就绪");
+  });
+
+  /* 若数据库文件较早创建过，puzzles 里可能没有 tags 列：尝试补一刀
+     SQLite 在列已存在时会抛错，简单 catch 无害 */
+  db.run(`ALTER TABLE puzzles ADD COLUMN tags TEXT DEFAULT ''`, (err) => {
+    if (!err) {
+      console.log("已向 puzzles 表补充 tags 列");
+    }
   });
 
   // Create tags table

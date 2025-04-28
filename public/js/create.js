@@ -80,6 +80,25 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(header);
 
   // ---------------------------
+  // “Title” 输入区（新增）
+  // ---------------------------
+  const titleLabel = document.createElement("label");
+  titleLabel.textContent = "Title:";
+  titleLabel.style.width = "100%";
+  titleLabel.style.margin = "10px 0 5px 0";
+  titleLabel.style.fontWeight = "bold";
+  puzzleBox.appendChild(titleLabel);
+
+  const titleInput = document.createElement("input");
+  titleInput.id = "titleInput";
+  titleInput.type = "text";
+  titleInput.placeholder = "Enter the title";
+  titleInput.style.width = "100%";
+  titleInput.style.padding = "10px";
+  titleInput.style.boxSizing = "border-box";
+  puzzleBox.appendChild(titleInput);
+
+  // ---------------------------
   // “The puzzle” 输入区
   // ---------------------------
   const puzzleLabel = document.createElement("label");
@@ -152,21 +171,30 @@ document.addEventListener("DOMContentLoaded", () => {
       const tagText = tagInput.value.trim();
       if (!tags.includes(tagText)) {
         tags.push(tagText);
+
+        // 创建 tag 气泡
         const tagElement = document.createElement("span");
-        tagElement.textContent = tagText;
+        tagElement.textContent = tagText + " ✕";          // 显示一个可点击的  ✕
         tagElement.style.padding = "5px 10px";
         tagElement.style.margin = "5px";
-        tagElement.style.backgroundColor = "#ddd";
+        tagElement.style.backgroundColor = isDarkMode ? "#555" : "#ddd";
         tagElement.style.borderRadius = "15px";
         tagElement.style.fontSize = "14px";
+        tagElement.style.cursor = "pointer";
         tagsContainer.appendChild(tagElement);
+
+        // 点击气泡删除自身 & 从数组移除
+        tagElement.addEventListener("click", () => {
+          tagsContainer.removeChild(tagElement);
+          const idx = tags.indexOf(tagText);
+          if (idx !== -1) tags.splice(idx, 1);
+        });
       }
       tagInput.value = "";
     }
   });
 
   // ---------------------------
-
   // Submit 按钮
   // ---------------------------
   const submitButton = document.createElement("button");
@@ -184,37 +212,36 @@ document.addEventListener("DOMContentLoaded", () => {
   // Submit 事件：POST 数据
   // ---------------------------
   submitButton.addEventListener("click", () => {
-    const puzzleText = puzzleInput.value;
-    const storyText = storyInput.value;
+    const titleText  = titleInput.value.trim();
+    const puzzleText = puzzleInput.value.trim();
+    const storyText  = storyInput.value.trim();
 
     fetch('http://localhost:3000/api/puzzles', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-
       body: JSON.stringify({
+        titleInput:  titleText,
         puzzleInput: puzzleText,
-        storyInput: storyText,
-        tags: tags
+        storyInput:  storyText,
+        tags:        tags
       })
-      
     })
       .then(response => response.json())
       .then(data => {
         alert("Puzzle submitted and saved with id: " + data.id);
+        titleInput.value  = "";
         puzzleInput.value = "";
-        storyInput.value = "";
-
+        storyInput.value  = "";
         tagsContainer.innerHTML = "";
         tags.length = 0;
-
       })
       .catch(err => {
         alert("Error submitting puzzle: " + err.message);
       });
   });
-  
+
   // ---------------------------
   // 根据主题更新样式
   // ---------------------------
@@ -245,4 +272,3 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   updateStylesForMode();
 });
-
