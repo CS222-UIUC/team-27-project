@@ -1,4 +1,3 @@
-// create.js:
 document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
   // 创建顶部两个按钮：home 与主题切换
@@ -80,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(header);
 
   // ---------------------------
-  // “Title” 输入区（新增）
+  // “Title” 输入区（改为 textarea）
   // ---------------------------
   const titleLabel = document.createElement("label");
   titleLabel.textContent = "Title:";
@@ -89,12 +88,12 @@ document.addEventListener("DOMContentLoaded", () => {
   titleLabel.style.fontWeight = "bold";
   puzzleBox.appendChild(titleLabel);
 
-  const titleInput = document.createElement("input");
+  const titleInput = document.createElement("textarea");
   titleInput.id = "titleInput";
-  titleInput.type = "text";
-  titleInput.placeholder = "Enter the title";
   titleInput.style.width = "100%";
+  titleInput.style.height = "50px"; // 较短高度，适合单行标题
   titleInput.style.padding = "10px";
+  titleInput.placeholder = "Enter the title";
   titleInput.style.boxSizing = "border-box";
   puzzleBox.appendChild(titleInput);
 
@@ -137,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(storyInput);
 
   // ---------------------------
-  // “Tags” 输入区
+  // “Tags” 输入区（改为 textarea）
   // ---------------------------
   const tagsLabel = document.createElement("label");
   tagsLabel.textContent = "Tags:";
@@ -146,12 +145,12 @@ document.addEventListener("DOMContentLoaded", () => {
   tagsLabel.style.fontWeight = "bold";
   puzzleBox.appendChild(tagsLabel);
 
-  const tagInput = document.createElement("input");
-  tagInput.type = "text";
+  const tagInput = document.createElement("textarea");
   tagInput.id = "tagInput";
-  tagInput.placeholder = "Enter a tag and press Enter";
   tagInput.style.width = "100%";
+  tagInput.style.height = "50px"; // 较短高度，适合单行标签输入
   tagInput.style.padding = "10px";
+  tagInput.placeholder = "Enter a tag and press Enter";
   tagInput.style.boxSizing = "border-box";
   puzzleBox.appendChild(tagInput);
 
@@ -174,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 创建 tag 气泡
         const tagElement = document.createElement("span");
-        tagElement.textContent = tagText + " ✕";          // 显示一个可点击的  ✕
+        tagElement.textContent = tagText + " ✕"; // 显示一个可点击的 ✕
         tagElement.style.padding = "5px 10px";
         tagElement.style.margin = "5px";
         tagElement.style.backgroundColor = isDarkMode ? "#555" : "#ddd";
