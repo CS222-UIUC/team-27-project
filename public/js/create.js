@@ -1,4 +1,3 @@
-// create.js:
 document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
   // Create top two buttons: Home and Theme Toggle
