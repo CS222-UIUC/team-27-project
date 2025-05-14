@@ -142,7 +142,7 @@ After making changes, follow these steps:
 This project is licensed under the ISC License.
 
 ## Group member
-Bo Zhu: Backend, API, Test
-Jun Wen: Front end, Database
-Shen Rong: Backend, Frontend, Puzzles
-Yi Wang: Front end, Database, UI
+- Bo Zhu: Backend, API, Test
+- Jun Wen: Front end, Database
+- Shen Rong: Backend, Frontend, Puzzles
+- Yi Wang: Front end, Database, UI
