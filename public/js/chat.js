@@ -1,25 +1,26 @@
 document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
-  // 创建顶部两个按钮：home 与主题切换
+  // Create top two buttons: Home and Theme Toggle
   // ---------------------------
-  // Home 图标按钮（左上角）
+
+  // Home icon button (top-left)
   const homeIcon = document.createElement("img");
   homeIcon.className = "top-button home-button";
   homeIcon.id = "homeIcon";
   homeIcon.src = "../icon/home.png"; // home icon
-  homeIcon.alt = "主页";
+  homeIcon.alt = "Home";
   document.body.appendChild(homeIcon);
   
-  // 主题切换图标按钮（右上角）
+  // Theme toggle icon button (top-right)
   const themeToggle = document.createElement("img");
   themeToggle.className = "top-button theme-toggle";
   themeToggle.id = "themeToggle";
-  // 初始图标会在下方根据 localStorage 设置
-  themeToggle.alt = "切换主题";
+  // Icon source will be set below based on localStorage
+  themeToggle.alt = "Toggle Theme";
   document.body.appendChild(themeToggle);
   
   // ---------------------------
-  // 创建聊天内容区域
+  // Create chat content area
   // ---------------------------
   const chatContainer = document.createElement("div");
   chatContainer.id = "chatContainer";
@@ -27,28 +28,28 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.appendChild(chatContainer);
   
   // ---------------------------
-  // 创建输入区域
+  // Create input area
   // ---------------------------
   const inputArea = document.createElement("div");
   inputArea.className = "input-area";
   document.body.appendChild(inputArea);
   
-  // 使用 contenteditable 的 div 作为输入框
+  // Use a contenteditable div as the input box
   const composer = document.createElement("div");
   composer.id = "composer-background";
   composer.setAttribute("contenteditable", "true");
-  composer.setAttribute("data-placeholder", "询问任何问题");
+  composer.setAttribute("data-placeholder", "Ask anything");
   inputArea.appendChild(composer);
   
   // ---------------------------
-  // 主页导航：点击 home 图标返回主页
+  // Home navigation: click home icon to return to homepage
   // ---------------------------
   homeIcon.addEventListener("click", () => {
-    window.location.href = "../index.html"; // 根据实际路径调整
+    window.location.href = "../index.html"; // Adjust path as needed
   });
   
   // ---------------------------
-  // 新增：初始化主题状态（通过 localStorage 保存跨页面状态）
+  // Initialize theme state (stored in localStorage to persist across pages)
   // ---------------------------
   const savedTheme = localStorage.getItem("theme");
   let isDarkMode = false;
@@ -58,18 +59,18 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     isDarkMode = false;
   }
-  // 设置主题图标和 home 图标效果与 main.js 保持一致
+  // Set theme icon and home icon styling to match main.js logic
   themeToggle.src = isDarkMode ? "../icon/sun.png" : "../icon/moon.png";
   homeIcon.style.filter = isDarkMode ? "brightness(0) invert(1)" : "none";
   themeToggle.style.filter = isDarkMode ? "brightness(0) invert(1)" : "none";
   
   // ---------------------------
-  // 主题切换逻辑
+  // Theme toggle logic
   // ---------------------------
   themeToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark-mode");
     isDarkMode = !isDarkMode;
-    // 修改图标和 home 图标，同时更新 localStorage
+    // Update icons and save the theme in localStorage
     if (isDarkMode) {
       themeToggle.src = "../icon/sun.png";
       homeIcon.style.filter = "brightness(0) invert(1)";
@@ -85,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   function updateStylesForMode() {
-    // 更新输入区域样式
+    // Update input and chat area styles based on theme
     if (document.body.classList.contains("dark-mode")) {
       composer.style.backgroundColor = "#303030";
       composer.style.borderColor = "#555";
@@ -101,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateStylesForMode();
   
   // ---------------------------
-  // 粘贴事件：只插入纯文本
+  // Paste event: only allow plain text
   // ---------------------------
   composer.addEventListener("paste", (e) => {
     e.preventDefault();
@@ -110,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   // ---------------------------
-  // 处理中文输入法组合状态
+  // Handle Chinese IME composition state
   // ---------------------------
   let isComposing = false;
   composer.addEventListener("compositionstart", () => {
@@ -121,12 +122,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   // ---------------------------
-  // 全局状态：是否正在等待 AI 回复
+  // Global flag: whether waiting for AI response
   // ---------------------------
   let isWaiting = false;
   
   // ---------------------------
-  // 回车键监听（非 Shift+Enter 且非组合状态下提交消息）
+  // Enter key listener (submit message unless Shift+Enter or composing)
   // ---------------------------
   composer.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey && !isComposing) {
@@ -136,17 +137,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   // ---------------------------
-  // 发送消息逻辑
+  // Message sending logic
   // ---------------------------
   function sendMessage() {
-    // 如果正在等待回复，直接返回，不再处理
+    // Do nothing if already waiting for reply
     if (isWaiting) return;
 
     const text = composer.innerText.trim();
     if (text !== "") {
       addChatMessage(text, "user");
-      composer.innerHTML = ""; // 清空输入框
-      isWaiting = true; // 设置等待状态
+      composer.innerHTML = ""; // Clear input box
+      isWaiting = true; // Set waiting flag
 
       fetch('http://localhost:3000/api/getReply', {
         method: 'POST',
@@ -156,17 +157,17 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(response => response.json())
       .then(data => {
         addChatMessage(data.reply, "bot");
-        isWaiting = false; // 收到回复后解除等待状态
+        isWaiting = false; // Clear waiting flag on success
       })
       .catch(error => {
         console.error("Error:", error);
-        isWaiting = false; // 出错时也解除等待状态
+        isWaiting = false; // Also clear waiting flag on error
       });
     }
   }
   
   // ---------------------------
-  // 动态添加聊天消息
+  // Dynamically add chat messages
   // ---------------------------
   function addChatMessage(message, sender) {
     const msgDiv = document.createElement("div");
@@ -174,23 +175,23 @@ document.addEventListener("DOMContentLoaded", () => {
     msgDiv.style.whiteSpace = 'pre-wrap';
     msgDiv.textContent = message;
     
-    // 根据 sender 设置气泡位置：  
-    // 用户消息气泡置右；系统消息气泡置中
+    // Align bubble based on sender:  
+    // user message to right; bot message to left
     if (sender === "user") {
       if (document.body.classList.contains("dark-mode")) {
-        msgDiv.style.backgroundColor = "#444"; // 深灰色
+        msgDiv.style.backgroundColor = "#444"; // dark gray
         msgDiv.style.color = "#fff";
       } else {
-        msgDiv.style.backgroundColor = "#f0f0f0"; // 浅灰色
+        msgDiv.style.backgroundColor = "#f0f0f0"; // light gray
         msgDiv.style.color = "#000";
       }
       msgDiv.style.alignSelf = "flex-end";
     } else {
       if (document.body.classList.contains("dark-mode")) {
-        msgDiv.style.backgroundColor = "#000"; // 黑色
+        msgDiv.style.backgroundColor = "#000"; // black
         msgDiv.style.color = "#fff";
       } else {
-        msgDiv.style.backgroundColor = "#fff"; // 白色
+        msgDiv.style.backgroundColor = "#fff"; // white
         msgDiv.style.color = "#000";
       }
       msgDiv.style.alignSelf = "flex-start";
@@ -199,7 +200,9 @@ document.addEventListener("DOMContentLoaded", () => {
     chatContainer.scrollTop = chatContainer.scrollHeight;
   }
   
-  // 新增：初始化聊天，主动获取欢迎问候
+  // ---------------------------
+  // Initialize chat with greeting from bot
+  // ---------------------------
   function initializeChat() {
     fetch('http://localhost:3000/api/getReply', {
       method: 'POST',
@@ -211,10 +214,10 @@ document.addEventListener("DOMContentLoaded", () => {
       addChatMessage(data.reply, "bot");
     })
     .catch(error => {
-      console.error("初始化聊天时出错:", error);
+      console.error("Error initializing chat:", error);
     });
   }
   
-  // 在页面加载完成后主动调用初始化函数
+  // Call initialization after page is loaded
   initializeChat();
 });
