@@ -1,11 +1,35 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 创建主题切换图标（右上角）
+  // 1) 读取 localStorage 中的主题值，设置界面
+  const savedTheme = localStorage.getItem("theme");
+  let isDarkMode = false;
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    isDarkMode = true;
+  } else {
+    isDarkMode = false;
+  }
+
+  // 2) 根据是否暗色模式来决定初始图标
   const themeToggle = document.createElement("img");
-  themeToggle.src = "../icon/moon.png"; // 初始为月亮图标
   themeToggle.alt = "Toggle Theme";
   themeToggle.className = "theme-toggle";
   themeToggle.id = "themeToggle";
+  themeToggle.src = isDarkMode ? "../icon/sun.png" : "../icon/moon.png";
+
   document.body.appendChild(themeToggle);
+
+  // 3) 在主题切换时，同时更新 localStorage
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    isDarkMode = !isDarkMode;
+    if (isDarkMode) {
+      themeToggle.src = "../icon/sun.png";
+      localStorage.setItem("theme", "dark");
+    } else {
+      themeToggle.src = "../icon/moon.png";
+      localStorage.setItem("theme", "light");
+    }
+  });
 
   // 创建整体容器（内容向上移动，与 main 的样式保持一致）
   const container = document.createElement("div");
@@ -40,21 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCreate = document.createElement("button");
   btnCreate.textContent = "Create One";
   buttonContainer.appendChild(btnCreate);
-  
-  // 正确：为 btnCreate 添加跳转事件
   btnCreate.addEventListener("click", () => {
     window.location.href = "../html/create.html";
   });
 
-  // 主题切换逻辑：切换 dark-mode 类，并根据状态更改图标
-  let isDarkMode = false;
-  themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-    isDarkMode = !isDarkMode;
-    if (isDarkMode) {
-      themeToggle.src = "../icon/sun.png";
-    } else {
-      themeToggle.src = "../icon/moon.png";
-    }
-  });
 });

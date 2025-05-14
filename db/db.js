@@ -1,16 +1,16 @@
-// db/db.js
+// db.js
 import sqlite3 from 'sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// 计算 __dirname
+// Calculate __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 指定数据库文件路径（如果文件不存在，SQLite 会自动创建）
+// Database file path (created automatically if it does not exist)
 const dbPath = path.resolve(__dirname, 'database.db');
 
-// 直接创建数据库连接，不使用 verbose
+// Create database connection
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error("数据库连接错误:", err);
@@ -19,9 +19,9 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-// 初始化数据库，创建相关表
+// Initialize database, create tables if they do not exist
 db.serialize(() => {
-  // 创建 puzzles 表
+  // Create puzzles table（新增 tags 字段）
   db.run(`
     CREATE TABLE IF NOT EXISTS puzzles (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,6 +29,7 @@ db.serialize(() => {
       description TEXT NOT NULL,
       solution TEXT NOT NULL,
       difficulty INTEGER DEFAULT 1,
+      tags TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `, (err) => {
@@ -36,7 +37,13 @@ db.serialize(() => {
     else console.log("puzzles 表已就绪");
   });
 
-  // 创建 tags 表
+  db.run(`ALTER TABLE puzzles ADD COLUMN tags TEXT DEFAULT ''`, (err) => {
+    if (!err) {
+      console.log("已向 puzzles 表补充 tags 列");
+    }
+  });
+
+  // Create tags table
   db.run(`
     CREATE TABLE IF NOT EXISTS tags (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +54,7 @@ db.serialize(() => {
     else console.log("tags 表已就绪");
   });
 
-  // 创建 puzzle_tags 关联表
+  // Create puzzle_tags table
   db.run(`
     CREATE TABLE IF NOT EXISTS puzzle_tags (
       puzzle_id INTEGER NOT NULL,

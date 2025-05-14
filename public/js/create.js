@@ -1,123 +1,274 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // ---------------------------
-    // 创建顶部两个按钮：home 与主题切换
-    // ---------------------------
-    // Home 图标按钮（左上角）
+    // ---------------------------------------------
+    // Create top navigation buttons: Home & Theme Toggle
+    // ---------------------------------------------
     const homeIcon = document.createElement("img");
     homeIcon.className = "top-button home-button";
     homeIcon.id = "homeIcon";
     homeIcon.src = "../icon/home.png";
-    homeIcon.alt = "主页";
+    homeIcon.alt = "Home";
     document.body.appendChild(homeIcon);
-  
-    // 主题切换图标按钮（右上角）
+
     const themeToggle = document.createElement("img");
     themeToggle.className = "top-button theme-toggle";
     themeToggle.id = "themeToggle";
-    themeToggle.src = "../icon/moon.png"; // 初始为月亮图标
-    themeToggle.alt = "切换主题";
+    themeToggle.alt = "Toggle Theme";
     document.body.appendChild(themeToggle);
-  
-    // 主页导航：点击 home 图标返回主页
+
+    // ---------------------------------------------
+    // Home button: Redirect to homepage
+    // ---------------------------------------------
     homeIcon.addEventListener("click", () => {
-      window.location.href = "../index.html"; // 根据实际路径调整
+        window.location.href = "../index.html";
     });
-  
-    // ---------------------------
-    // 主题切换逻辑
-    // ---------------------------
+
+    // ---------------------------------------------
+    // Initialize theme from localStorage
+    // ---------------------------------------------
+    const savedTheme = localStorage.getItem("theme");
     let isDarkMode = false;
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        isDarkMode = true;
+    } else {
+        isDarkMode = false;
+    }
+    themeToggle.src = isDarkMode ? "../icon/sun.png" : "../icon/moon.png";
+    homeIcon.style.filter = isDarkMode ? "brightness(0) invert(1)" : "none";
+    themeToggle.style.filter = isDarkMode ? "brightness(0) invert(1)" : "none";
+
+    // ---------------------------------------------
+    // Theme toggle logic (shared with chat.js)
+    // ---------------------------------------------
     themeToggle.addEventListener("click", () => {
-      document.body.classList.toggle("dark-mode");
-      isDarkMode = !isDarkMode;
-      // 通过 CSS filter 实现图标颜色反转，同时同步 home 图标
-      if (isDarkMode) {
-        themeToggle.style.filter = "invert(1)";
-        homeIcon.style.filter = "invert(1)";
-      } else {
-        themeToggle.style.filter = "none";
-        homeIcon.style.filter = "none";
-      }
-      updateStylesForMode();
+        document.body.classList.toggle("dark-mode");
+        isDarkMode = !isDarkMode;
+
+        if (isDarkMode) {
+            themeToggle.src = "../icon/sun.png";
+            homeIcon.style.filter = "brightness(0) invert(1)";
+            themeToggle.style.filter = "brightness(0) invert(1)";
+            localStorage.setItem("theme", "dark");
+        } else {
+            themeToggle.src = "../icon/moon.png";
+            homeIcon.style.filter = "none";
+            themeToggle.style.filter = "none";
+            localStorage.setItem("theme", "light");
+        }
+        updateStylesForMode();
     });
-  
-    // ---------------------------
-    // 创建中间的方框（类似表格的样式）
-    // ---------------------------
+
+    // ---------------------------------------------
+    // Create puzzle box container
+    // ---------------------------------------------
     const puzzleBox = document.createElement("div");
     puzzleBox.id = "puzzleBox";
-    // 设置方框样式
-    puzzleBox.style.width = "400px";
-    puzzleBox.style.margin = "50px auto"; // 居中并设置上边距
+    puzzleBox.style.width = "600px";
+    puzzleBox.style.margin = "50px auto";
     puzzleBox.style.padding = "20px";
     puzzleBox.style.border = "1px solid #ccc";
     puzzleBox.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
     puzzleBox.style.display = "flex";
     puzzleBox.style.flexDirection = "column";
     puzzleBox.style.alignItems = "center";
-    
-    // 在方框最上面添加居中的标题
+
     const header = document.createElement("h2");
     header.textContent = "Create Your Own Puzzle";
     header.style.textAlign = "center";
     header.style.width = "100%";
     puzzleBox.appendChild(header);
-    
-    // 可选：添加一个内容区域，未来可用来放置拼图元素或其他内容
-    const contentArea = document.createElement("div");
-    contentArea.id = "puzzleContent";
-    contentArea.style.width = "100%";
-    contentArea.style.height = "200px"; // 示例高度
-    contentArea.style.border = "1px solid #ddd";
-    contentArea.style.margin = "20px 0";
-    contentArea.style.display = "flex";
-    contentArea.style.justifyContent = "center";
-    contentArea.style.alignItems = "center";
-    contentArea.textContent = "Puzzle content area";
-    puzzleBox.appendChild(contentArea);
-    
-    // 创建 Submit 按钮，放在方框底部
+
+    // ---------------------------------------------
+    // Title input section (textarea)
+    // ---------------------------------------------
+    const titleLabel = document.createElement("label");
+    titleLabel.textContent = "Title:";
+    titleLabel.style.width = "100%";
+    titleLabel.style.margin = "10px 0 5px 0";
+    titleLabel.style.fontWeight = "bold";
+    puzzleBox.appendChild(titleLabel);
+
+    const titleInput = document.createElement("textarea");
+    titleInput.id = "titleInput";
+    titleInput.style.width = "100%";
+    titleInput.style.height = "50px";
+    titleInput.style.padding = "10px";
+    titleInput.placeholder = "Enter the title";
+    titleInput.style.boxSizing = "border-box";
+    puzzleBox.appendChild(titleInput);
+
+    // ---------------------------------------------
+    // Puzzle content input section
+    // ---------------------------------------------
+    const puzzleLabel = document.createElement("label");
+    puzzleLabel.textContent = "The puzzle:";
+    puzzleLabel.style.width = "100%";
+    puzzleLabel.style.margin = "10px 0 5px 0";
+    puzzleLabel.style.fontWeight = "bold";
+    puzzleBox.appendChild(puzzleLabel);
+
+    const puzzleInput = document.createElement("textarea");
+    puzzleInput.id = "puzzleInput";
+    puzzleInput.style.width = "100%";
+    puzzleInput.style.height = "100px";
+    puzzleInput.style.padding = "10px";
+    puzzleInput.placeholder = "Enter the puzzle content";
+    puzzleInput.style.boxSizing = "border-box";
+    puzzleBox.appendChild(puzzleInput);
+
+    // ---------------------------------------------
+    // Story content input section
+    // ---------------------------------------------
+    const storyLabel = document.createElement("label");
+    storyLabel.textContent = "The whole Story:";
+    storyLabel.style.width = "100%";
+    storyLabel.style.margin = "10px 0 5px 0";
+    storyLabel.style.fontWeight = "bold";
+    puzzleBox.appendChild(storyLabel);
+
+    const storyInput = document.createElement("textarea");
+    storyInput.id = "storyInput";
+    storyInput.style.width = "100%";
+    storyInput.style.height = "150px";
+    storyInput.style.padding = "10px";
+    storyInput.placeholder = "Enter the story content";
+    storyInput.style.boxSizing = "border-box";
+    puzzleBox.appendChild(storyInput);
+
+    // ---------------------------------------------
+    // Tags input section
+    // ---------------------------------------------
+    const tagsLabel = document.createElement("label");
+    tagsLabel.textContent = "Tags:";
+    tagsLabel.style.width = "100%";
+    tagsLabel.style.margin = "10px 0 5px 0";
+    tagsLabel.style.fontWeight = "bold";
+    puzzleBox.appendChild(tagsLabel);
+
+    const tagInput = document.createElement("textarea");
+    tagInput.id = "tagInput";
+    tagInput.style.width = "100%";
+    tagInput.style.height = "50px";
+    tagInput.style.padding = "10px";
+    tagInput.placeholder = "Enter a tag and press Enter";
+    tagInput.style.boxSizing = "border-box";
+    puzzleBox.appendChild(tagInput);
+
+    const tagsContainer = document.createElement("div");
+    tagsContainer.id = "tagsContainer";
+    tagsContainer.style.width = "100%";
+    tagsContainer.style.marginTop = "10px";
+    tagsContainer.style.display = "flex";
+    tagsContainer.style.flexWrap = "wrap";
+    puzzleBox.appendChild(tagsContainer);
+
+    const tags = [];
+
+    tagInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && tagInput.value.trim() !== "") {
+            event.preventDefault();
+            const tagText = tagInput.value.trim();
+            if (!tags.includes(tagText)) {
+                tags.push(tagText);
+
+                // Create a removable tag bubble
+                const tagElement = document.createElement("span");
+                tagElement.textContent = tagText + " ✕";
+                tagElement.style.padding = "5px 10px";
+                tagElement.style.margin = "5px";
+                tagElement.style.backgroundColor = isDarkMode ? "#555" : "#ddd";
+                tagElement.style.borderRadius = "15px";
+                tagElement.style.fontSize = "14px";
+                tagElement.style.cursor = "pointer";
+                tagsContainer.appendChild(tagElement);
+
+                // Remove tag on click
+                tagElement.addEventListener("click", () => {
+                    tagsContainer.removeChild(tagElement);
+                    const idx = tags.indexOf(tagText);
+                    if (idx !== -1) tags.splice(idx, 1);
+                });
+            }
+            tagInput.value = "";
+        }
+    });
+
+    // ---------------------------------------------
+    // Submit button
+    // ---------------------------------------------
     const submitButton = document.createElement("button");
     submitButton.id = "submitButton";
     submitButton.textContent = "Submit";
     submitButton.style.padding = "10px 20px";
     submitButton.style.fontSize = "16px";
     submitButton.style.cursor = "pointer";
+    submitButton.style.marginTop = "20px";
     puzzleBox.appendChild(submitButton);
-    
-    // 将方框添加到页面
+
     document.body.appendChild(puzzleBox);
-    
-    // Submit 按钮点击事件处理
+
+    // ---------------------------------------------
+    // Submit event: POST puzzle data
+    // ---------------------------------------------
     submitButton.addEventListener("click", () => {
-      alert("Puzzle submitted!");
+        const titleText = titleInput.value.trim();
+        const puzzleText = puzzleInput.value.trim();
+        const storyText = storyInput.value.trim();
+
+        fetch('http://localhost:3000/api/puzzles', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                titleInput: titleText,
+                puzzleInput: puzzleText,
+                storyInput: storyText,
+                tags: tags
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Puzzle submitted and saved with id: " + data.id);
+            titleInput.value = "";
+            puzzleInput.value = "";
+            storyInput.value = "";
+            tagsContainer.innerHTML = "";
+            tags.length = 0;
+        })
+        .catch(err => {
+            alert("Error submitting puzzle: " + err.message);
+        });
     });
-    
-    // ---------------------------
-    // 根据主题更新页面样式
-    // ---------------------------
+
+    // ---------------------------------------------
+    // Update styles based on current theme
+    // ---------------------------------------------
     function updateStylesForMode() {
-      if (document.body.classList.contains("dark-mode")) {
-        document.body.style.backgroundColor = "#121212";
-        puzzleBox.style.backgroundColor = "#222";
-        puzzleBox.style.color = "#fff";
-        contentArea.style.backgroundColor = "#333";
-        contentArea.style.borderColor = "#555";
-        submitButton.style.backgroundColor = "#444";
-        submitButton.style.color = "#fff";
-      } else {
-        document.body.style.backgroundColor = "#fff";
-        puzzleBox.style.backgroundColor = "#f9f9f9";
-        puzzleBox.style.color = "#000";
-        contentArea.style.backgroundColor = "#fff";
-        contentArea.style.borderColor = "#ccc";
-        submitButton.style.backgroundColor = "#f0f0f0";
-        submitButton.style.color = "#000";
-      }
+        if (document.body.classList.contains("dark-mode")) {
+            document.body.style.backgroundColor = "#121212";
+            puzzleBox.style.backgroundColor = "#222";
+            puzzleBox.style.color = "#fff";
+            submitButton.style.backgroundColor = "#444";
+            submitButton.style.color = "#fff";
+
+            const tagSpans = tagsContainer.querySelectorAll("span");
+            tagSpans.forEach(span => {
+                span.style.backgroundColor = "#555";
+            });
+        } else {
+            document.body.style.backgroundColor = "#fff";
+            puzzleBox.style.backgroundColor = "#f9f9f9";
+            puzzleBox.style.color = "#000";
+            submitButton.style.backgroundColor = "#f0f0f0";
+            submitButton.style.color = "#000";
+
+            const tagSpans = tagsContainer.querySelectorAll("span");
+            tagSpans.forEach(span => {
+                span.style.backgroundColor = "#ddd";
+            });
+        }
     }
-    
-    // 初始调用更新主题样式
+
     updateStylesForMode();
-  });
-  
-  
+});
