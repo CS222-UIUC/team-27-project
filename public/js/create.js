@@ -1,7 +1,7 @@
 // create.js:
 document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
-  // 创建顶部两个按钮：home 与主题切换
+  // Create top two buttons: Home and Theme Toggle
   // ---------------------------
   const homeIcon = document.createElement("img");
   homeIcon.className = "top-button home-button";
@@ -17,14 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.appendChild(themeToggle);
 
   // ---------------------------
-  // Home 按钮：返回主页
+  // Home button: return to homepage
   // ---------------------------
   homeIcon.addEventListener("click", () => {
     window.location.href = "../index.html";
   });
 
   // ---------------------------
-  // 初始化主题（读取 localStorage）
+  // Initialize theme (read from localStorage)
   // ---------------------------
   const savedTheme = localStorage.getItem("theme");
   let isDarkMode = false;
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   themeToggle.style.filter = isDarkMode ? "brightness(0) invert(1)" : "none";
 
   // ---------------------------
-  // 主题切换逻辑（与 chat.js 一致）
+  // Theme toggle logic (same as in chat.js)
   // ---------------------------
   themeToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark-mode");
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ---------------------------
-  // 创建中间输入框等元素
+  // Create central input box and related elements
   // ---------------------------
   const puzzleBox = document.createElement("div");
   puzzleBox.id = "puzzleBox";
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(header);
 
   // ---------------------------
-  // “Title” 输入区（新增）
+  // "Title" input section (new)
   // ---------------------------
   const titleLabel = document.createElement("label");
   titleLabel.textContent = "Title:";
@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(titleInput);
 
   // ---------------------------
-  // “The puzzle” 输入区
+  // "The puzzle" input section
   // ---------------------------
   const puzzleLabel = document.createElement("label");
   puzzleLabel.textContent = "The puzzle:";
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(puzzleInput);
 
   // ---------------------------
-  // “The whole Story” 输入区
+  // "The whole Story" input section
   // ---------------------------
   const storyLabel = document.createElement("label");
   storyLabel.textContent = "The whole Story:";
@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
   puzzleBox.appendChild(storyInput);
 
   // ---------------------------
-  // “Tags” 输入区
+  // "Tags" input section
   // ---------------------------
   const tagsLabel = document.createElement("label");
   tagsLabel.textContent = "Tags:";
@@ -172,9 +172,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!tags.includes(tagText)) {
         tags.push(tagText);
 
-        // 创建 tag 气泡
+        // Create a tag bubble
         const tagElement = document.createElement("span");
-        tagElement.textContent = tagText + " ✕";          // 显示一个可点击的  ✕
+        tagElement.textContent = tagText + " ✕";          // Display a clickable ✕
         tagElement.style.padding = "5px 10px";
         tagElement.style.margin = "5px";
         tagElement.style.backgroundColor = isDarkMode ? "#555" : "#ddd";
@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tagElement.style.cursor = "pointer";
         tagsContainer.appendChild(tagElement);
 
-        // 点击气泡删除自身 & 从数组移除
+        // Click to remove the tag and delete it from the array
         tagElement.addEventListener("click", () => {
           tagsContainer.removeChild(tagElement);
           const idx = tags.indexOf(tagText);
@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ---------------------------
-  // Submit 按钮
+  // Submit button
   // ---------------------------
   const submitButton = document.createElement("button");
   submitButton.id = "submitButton";
@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.appendChild(puzzleBox);
 
   // ---------------------------
-  // Submit 事件：POST 数据
+  // Submit event: POST data
   // ---------------------------
   submitButton.addEventListener("click", () => {
     const titleText  = titleInput.value.trim();
@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ---------------------------
-  // 根据主题更新样式
+  // Update styles based on current theme
   // ---------------------------
   function updateStylesForMode() {
     if (document.body.classList.contains("dark-mode")) {
@@ -252,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
       puzzleBox.style.color = "#fff";
       submitButton.style.backgroundColor = "#444";
       submitButton.style.color = "#fff";
-      // 调暗 dark mode 下的 tag 背景
+      // Dim tag background color in dark mode
       const tagSpans = tagsContainer.querySelectorAll("span");
       tagSpans.forEach(span => {
         span.style.backgroundColor = "#555";
@@ -263,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
       puzzleBox.style.color = "#000";
       submitButton.style.backgroundColor = "#f0f0f0";
       submitButton.style.color = "#000";
-      // 还原 light mode 下的 tag 背景
+      // Restore tag background color in light mode
       const tagSpans = tagsContainer.querySelectorAll("span");
       tagSpans.forEach(span => {
         span.style.backgroundColor = "#ddd";
