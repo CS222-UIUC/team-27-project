@@ -37,8 +37,6 @@ db.serialize(() => {
     else console.log("puzzles 表已就绪");
   });
 
-  /* 若数据库文件较早创建过，puzzles 里可能没有 tags 列：尝试补一刀
-     SQLite 在列已存在时会抛错，简单 catch 无害 */
   db.run(`ALTER TABLE puzzles ADD COLUMN tags TEXT DEFAULT ''`, (err) => {
     if (!err) {
       console.log("已向 puzzles 表补充 tags 列");

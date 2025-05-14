@@ -2,9 +2,9 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>聊天界面</title>
+  <title>chat</title>
   <style>
-    /* 全局基础样式 */
+    /* Base global styles */
     body {
       margin: 0;
       padding: 0;
@@ -16,7 +16,8 @@
       flex-direction: column;
       transition: background-color 0.3s, color 0.3s;
     }
-    /* 两个按钮的公共样式 */
+
+    /* Shared styles for top buttons */
     .top-button {
       position: absolute;
       top: 20px;
@@ -27,50 +28,58 @@
       outline: none;
       background-color: transparent;
     }
-    /* 左上角按钮 */
+
+    /* Home button (top-left) */
     .home-button {
       left: 20px;
     }
-    /* 右上角按钮 */
+
+    /* Theme toggle button (top-right) */
     .theme-toggle {
       right: 20px;
     }
-    /* 聊天内容区域：添加 display:flex 和 flex-direction 便于气泡位置控制 */
+
+    /* Chat container (scrollable area) */
     .chat-container {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
       background-color: #f9f9f9;
-      /* 为了避免被顶部按钮遮挡，留出顶部间隙 */
-      margin-top: 100px;
+      margin-top: 100px; /* spacing to avoid top button overlap */
       display: flex;
       flex-direction: column;
     }
-    /* 聊天消息样式 */
+
+    /* Chat message bubbles */
     .chat-message {
       margin-bottom: 15px;
       max-width: 61.8%;
       padding: 10px 15px;
       border-radius: 10px;
     }
+
     .chat-message.user {
       background-color: #d0eaff;
     }
+
     .chat-message.bot {
       background-color: #eee;
     }
-    /* 在深色模式下，确保聊天消息字体变为白色 */
+
+    /* Ensure message text color is readable in dark mode */
     body.dark-mode .chat-message {
       color: #fff;
     }
-    /* 输入区域 */
+
+    /* Input area at the bottom */
     .input-area {
       padding: 10px 20px;
       border-top: 1px solid #ccc;
       display: flex;
       align-items: center;
     }
-    /* 使用 contenteditable 的 div 作为输入框 */
+
+    /* Contenteditable input box */
     #composer-background {
       flex: 1;
       min-height: 44px;
@@ -81,20 +90,24 @@
       padding: 10px 14px;
       background-color: #fff;
       transition: background-color 0.3s, border-color 0.3s;
-      outline: none; /* 去掉聚焦时蓝色边框 */
+      outline: none; /* remove focus outline */
     }
-    /* 深色模式 */
+
+    /* Dark mode overrides */
     body.dark-mode {
       background-color: #000;
       color: #fff;
     }
+
     body.dark-mode .input-area {
       border-top: 1px solid #222;
     }
+
     body.dark-mode .chat-container {
       border-top: 1px solid #222;
       background-color: #222;
     }
+
     body.dark-mode #composer-background {
       background-color: #333;
       border-color: #555;
@@ -102,7 +115,7 @@
   </style>
 </head>
 <body>
-  <!-- 页面结构由 chat.js 动态生成 -->
+  <!-- Page structure is dynamically generated via chat.js -->
   <script src="../js/chat.js"></script>
 </body>
 </html>

@@ -1,11 +1,11 @@
-<!-- create.html: -->
+<!-- create.html -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>创建拼图界面</title>
+  <title>create</title>
   <style>
-    /* 全局基础样式 */
+    /* Base global styles */
     body {
       margin: 0;
       padding: 0;
@@ -17,7 +17,8 @@
       flex-direction: column;
       transition: background-color 0.3s, color 0.3s;
     }
-    /* 两个按钮的公共样式 */
+
+    /* Shared styles for top buttons */
     .top-button {
       position: absolute;
       top: 20px;
@@ -28,15 +29,18 @@
       outline: none;
       background-color: transparent;
     }
-    /* 左上角按钮 */
+
+    /* Home button (top-left) */
     .home-button {
       left: 20px;
     }
-    /* 右上角按钮 */
+
+    /* Theme toggle button (top-right) */
     .theme-toggle {
       right: 20px;
     }
-    /* 聊天内容区域（如果需要复用） */
+
+    /* Chat container (reusable layout) */
     .chat-container {
       flex: 1;
       overflow-y: auto;
@@ -46,7 +50,8 @@
       display: flex;
       flex-direction: column;
     }
-    /* 深色模式下 */
+
+    /* Dark mode overrides */
     body.dark-mode {
       background-color: #000;
       color: #fff;
@@ -54,8 +59,8 @@
   </style>
 </head>
 <body>
-  <!-- 页面结构由 create.js 动态生成 -->
-  <!-- 引入外部脚本，确保加载的是新版包含 fetch 逻辑的文件 -->
+  <!-- Page structure is dynamically generated via create.js -->
+  <!-- Load external script (make sure it's the latest version with fetch logic) -->
   <script src="../js/create.js"></script>
 </body>
 </html>

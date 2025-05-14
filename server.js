@@ -3,56 +3,55 @@ import path from "path";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
 import OpenAI from "openai";
-import db from "./db/db.js";  // Your existing db.js file for SQLite setup
+import db from "./db/db.js";  // SQLite database setup
 
-const app   = express();
-const port  = 3000;
+const app  = express();
+const port = 3000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
-// Serve static files from the public directory.
+// Serve static assets from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Use body-parser middleware to parse JSON request bodies.
+// Parse incoming JSON request bodies
 app.use(bodyParser.json());
 
-// 默认根路径指向 public 目录下的 index.html
+// Route for root path, serving index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ------------------------
-// OpenAI / 海龟汤 游戏部分
-// ------------------------
+// ---------------------------------------------
+// OpenAI-based Turtle Soup game logic
+// ---------------------------------------------
 
 const OPENAI_API_KEY = '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';
 const openaiClient   = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-// 存储对话上下文（全局变量，demo 用；生产环境建议使用其他会话管理方式）
+// In-memory conversation history (demo use only)
 let conversationHistory = [
   { role: "system", content:
-      "你现在扮演“海龟汤大师”，负责主持与裁判“海龟汤”游戏。\n" +
-      "你的第一语言是英语，除非用户尝试用其他语言和你交流。\n" +
-      "你的职责如下：\n" +
-      "1. 提供看似荒诞的‘谎面’，背后隐藏合理的故事；\n" +
-      "2. 引导玩家通过提问猜测逐步还原真相；\n" +
-      "3. 你会根据玩家提问回答“是”、“否”或“不相关”，必要时补充提示；\n" +
-      "4. 风格偏向悬疑、惊悚、反转和黑色幽默；\n" +
-      "5. 当玩家准确猜出关键线索（例如电话铃声暴露位置）时，请**立即揭晓完整答案**并结束本局游戏。\n" +
-      "请先向玩家打个招呼并问他们希望以什么风格开始游戏。"
+      "You are the 'Turtle Soup Master' hosting a game of logical deduction.\n" +
+      "Your primary language is English unless the user speaks otherwise.\n" +
+      "Instructions:\n" +
+      "1. Provide a seemingly absurd surface story with a hidden logical explanation.\n" +
+      "2. Guide the player by answering Yes/No/Irrelevant to their questions.\n" +
+      "3. Give hints when necessary, and reveal the full story once key logic is guessed.\n" +
+      "4. Maintain a tone of suspense, mystery, and dark humor.\n" +
+      "Please greet the player and ask which tone/style they'd like to play."
   }
 ];
 
-// 记录当前抽出的谜题（隐藏解答）
+// Currently loaded puzzle (hidden solution)
 let currentPuzzle = null;
 
-// ---------- 判断是否进入“数据库”模式 只在用户提到“数据库”或“标签/tag/#”时触发 ----------
+// Check if the user input indicates database mode
 function isDBMode(message) {
   return /(?:数据库|标签[:：]?\s*[\w\u4e00-\u9fa5]+|tag[:：]?\s*[\w\u4e00-\u9fa5]+|#\w+)/i.test(message);
 }
 
-// ---------- 从用户消息里提取标签 支持 "#红汤"/"标签红汤"/"标签:红汤"/"tag:红汤" ----------
+// Extract tag from user message
 function extractTag(message) {
   const hashMatch = message.match(/#([\w\u4e00-\u9fa5]+)/);
   if (hashMatch) return hashMatch[1];
@@ -61,21 +60,23 @@ function extractTag(message) {
   return null;
 }
 
-// ---------- 检测文本是否含中文 ----------
+// Check if text contains Chinese characters
 function isChineseText(text) {
   return /[\u4e00-\u9fa5]/.test(text);
 }
 
-// ---------- 检测是否为玩家请求揭晓真相/答案 ----------
+// Check if user is asking to reveal the solution
 function wantSolution(msg) {
   return /(答案|真相|solution|reveal|tell me the answer)/i.test(msg);
 }
 
-// --------------------------------------------
+// ---------------------------------------------
+// API endpoint for chat interaction
+// ---------------------------------------------
 app.post('/api/getReply', async (req, res) => {
   const userMessage = req.body.question;
 
-  // --- 若正在进行的谜题，且玩家请求“答案”则直接揭晓 ---
+  // Reveal solution if requested
   if (currentPuzzle && wantSolution(userMessage)) {
     const answer = currentPuzzle.lang === 'zh'
       ? `完整答案：${currentPuzzle.solution}`
@@ -85,7 +86,7 @@ app.post('/api/getReply', async (req, res) => {
     return res.json({ reply: answer });
   }
 
-  // --- 判断是否走“数据库取题”分支 ---
+  // Branch: retrieve puzzle from database
   if (isDBMode(userMessage)) {
     const wantedTag = extractTag(userMessage);
     const sql = wantedTag
@@ -95,14 +96,14 @@ app.post('/api/getReply', async (req, res) => {
 
     db.get(sql, params, async (err, row) => {
       if (err) {
-        console.error("数据库查询错误:", err);
-        return res.status(500).json({ reply: '数据库查询时出错' });
+        console.error("Database query error:", err);
+        return res.status(500).json({ reply: 'Database query failed' });
       }
       if (!row) {
-        return res.json({ reply: '数据库中未找到任何符合条件的海龟汤' });
+        return res.json({ reply: 'No matching puzzle found in database' });
       }
 
-      // 语言感知：中文环境直接返回，否则先翻译 Title+Puzzle
+      // Language detection: use Chinese if user input is in Chinese
       const wantZh = isChineseText(userMessage);
       let sendToUser, hiddenSolution, langMark;
 
@@ -126,20 +127,20 @@ app.post('/api/getReply', async (req, res) => {
           });
           sendToUser = trRes.choices[0].message.content.trim();
         } catch (e) {
-          console.error("翻译失败:", e);
+          console.error("Translation failed:", e);
           sendToUser = `Title: ${row.title}\nPuzzle: ${row.description}`;
         }
         hiddenSolution = row.solution;
         langMark       = 'en';
       }
 
-      // 重置对话历史，插入隐藏解答 system
+      // Reset conversation history and inject hidden solution
       conversationHistory = [
         conversationHistory[0],
         { role: "system", content:
             `[HiddenSolution]\n${hiddenSolution}\n\n` +
-            `在玩家揭晓前，只能以“是/否/不相关”回答，必要时给提示线索；` +
-            `当玩家完全猜中关键机制后，请直接揭晓完整答案。`
+            `Until the player guesses the key mechanism, only answer with Yes/No/Irrelevant.` +
+            `Once the key logic is guessed, reveal the full solution.`
         }
       ];
       currentPuzzle = { solution: hiddenSolution, lang: langMark };
@@ -149,7 +150,7 @@ app.post('/api/getReply', async (req, res) => {
     return;
   }
 
-  // --- 默认：正常对话 / 提问阶段 ---
+  // Default behavior: continue conversation
   conversationHistory.push({ role: "user", content: userMessage });
   try {
     const response = await openaiClient.chat.completions.create({
@@ -159,23 +160,22 @@ app.post('/api/getReply', async (req, res) => {
     const reply = response.choices[0].message.content;
     conversationHistory.push({ role: "assistant", content: reply });
 
-    // 限制历史长度
+    // Limit max history length
     const maxHistory = 50;
     if (conversationHistory.length > maxHistory) {
-      conversationHistory = [conversationHistory[0], ...conversationHistory.slice(-maxHistory+1)];
+      conversationHistory = [conversationHistory[0], ...conversationHistory.slice(-maxHistory + 1)];
     }
 
     res.json({ reply });
   } catch (error) {
     console.error("Error calling OpenAI API:", error);
-    res.status(500).json({ error: '调用 OpenAI API 时出错' });
+    res.status(500).json({ error: 'Failed to call OpenAI API' });
   }
 });
 
-// ------------------------
-// Puzzle 上传部分（保持不变）
-// ------------------------
-
+// ---------------------------------------------
+// Puzzle submission endpoint
+// ---------------------------------------------
 app.post('/api/puzzles', (req, res) => {
   const { titleInput, puzzleInput, storyInput, tags } = req.body;
   if (!titleInput || !puzzleInput || !storyInput) {
@@ -187,7 +187,7 @@ app.post('/api/puzzles', (req, res) => {
     [titleInput, puzzleInput, storyInput, tagsStr],
     function(err) {
       if (err) {
-        console.error("数据库错误:", err);
+        console.error("Database error:", err);
         return res.status(500).json({ error: "Database error" });
       }
       res.json({ id: this.lastID, message: "Puzzle saved" });
@@ -195,9 +195,12 @@ app.post('/api/puzzles', (req, res) => {
   );
 });
 
+// ---------------------------------------------
+// Puzzle retrieval endpoint (optionally filtered by tag)
+// ---------------------------------------------
 app.get('/api/puzzles', (req, res) => {
   const { tag } = req.query;
-  let sql  = `SELECT * FROM puzzles `;
+  let sql = `SELECT * FROM puzzles `;
   const params = [];
   if (tag) {
     sql += `WHERE tags LIKE ? `;
@@ -206,13 +209,16 @@ app.get('/api/puzzles', (req, res) => {
   sql += `ORDER BY created_at DESC`;
   db.all(sql, params, (err, rows) => {
     if (err) {
-      console.error("数据库错误:", err);
+      console.error("Database error:", err);
       return res.status(500).json({ error: "Database error" });
     }
     res.json(rows);
   });
 });
 
+// ---------------------------------------------
+// Start the server
+// ---------------------------------------------
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
