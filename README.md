@@ -1,89 +1,148 @@
-# team-27-project
+# Turtle Soup Riddle Game
 
-本项目目录下的 `html` 文件夹中包含最新的工作成果。请在浏览器（推荐统一用Chrome开发）中运行 `main.html` 来查看最新效果。
-
----
-
-## 项目简介
-
-详见 `Situation Puzzle Game Project Proposal.docx`
+This project is a web-based implementation of the "Turtle Soup" riddle game. Players can solve mysterious puzzles by asking yes/no questions or create their own puzzles to share with others.
 
 ---
 
-## 环境搭建与 Git 使用指南
+## Project Overview
 
-### 1. 创建项目文件夹
+The game allows users to:
+1. **Play the Turtle Soup game**: Solve riddles by uncovering the hidden story behind a mysterious scenario.
+2. **Create custom puzzles**: Design and submit your own puzzles with titles, descriptions, solutions, and tags.
 
-首先在本地新建一个文件夹，用于存放项目文件。
+For more details, refer to the project proposal: `Situation Puzzle Game Project Proposal.docx`.
 
-### 2. 初始化 Git 仓库
+---
 
-在终端中进入项目文件夹后，执行以下命令：
+## Features
+
+- **Dark Mode Support**: Toggle between light and dark themes for a better user experience.
+- **Dynamic Puzzle Management**: Create, tag, and store puzzles in a SQLite database.
+- **Interactive Chat Interface**: Ask questions and receive responses from the game master.
+- **Responsive Design**: Optimized for desktop browsers (recommended: Chrome).
+
+---
+
+## Setup Instructions
+
+### 1. Install Dependencies
+
+Ensure you have Node.js installed. Then, run the following command in the project directory to install required dependencies:
+
+```bash
+npm install
+```
+
+### 2. Start the Server
+
+Run the server using the following command:
+
+```bash
+npm start
+```
+
+The server will start at `http://localhost:3000`.
+
+### 3. Access the Application
+
+Open your browser and navigate to `http://localhost:3000` to access the game.
+
+---
+
+## Development Guide
+
+### File Structure
+
+- **`public/`**: Contains static files for the frontend.
+  - **`html/`**: HTML files for different pages (e.g., `chat.html`, `create.html`).
+  - **`js/`**: JavaScript files for frontend logic (e.g., `main.js`, `chat.js`, `create.js`).
+  - **`icon/`**: Icons for UI elements (e.g., theme toggle, home button).
+- **`db/`**: SQLite database and related scripts.
+- **`server.js`**: Backend server logic using Express.js.
+
+### Key Scripts
+
+- **Frontend**:
+  - `main.js`: Handles the homepage logic and navigation.
+  - `chat.js`: Manages the chat interface for solving puzzles.
+  - `create.js`: Provides functionality for creating and submitting puzzles.
+- **Backend**:
+  - `server.js`: Handles API routes for fetching and submitting puzzles.
+  - `db.js`: Initializes and manages the SQLite database.
+
+---
+
+## Git Workflow
+
+### 1. Initialize Git Repository
+
+Run the following commands to set up the repository:
 
 ```bash
 git init
 git remote add origin https://github.com/CS222-UIUC/team-27-project.git
 ```
 
-> **检查远程仓库配置：**
->
-> ```bash
-> git remote -v
-> ```
+### 2. Pull Latest Changes
 
-### 3. 更新最新代码
-
-在提交本地更改前，请先拉取远程仓库中的最新代码，并查看更新日志：
+Before making changes, pull the latest code:
 
 ```bash
 git pull origin main
 ```
 
-同时建议查看 `log.txt`，了解详细的更新信息。
+### 3. Commit and Push Changes
 
-### 4. 提交与上传代码
+After making changes, follow these steps:
 
-完成代码修改后，按以下步骤提交和上传代码：
-
-1. **添加改动到暂存区：**
-
-- 添加所有改动：
+1. Add changes to the staging area:
     ```bash
     git add .
     ```
-- 或者仅添加指定文件（例如 `chat.js`）：
+2. Commit the changes:
     ```bash
-    git add chat.js
+    git commit -m "Your commit message"
+    ```
+3. Push the changes to the repository:
+    ```bash
+    git push origin main
     ```
 
-2. **提交改动：**
+---
 
-```bash
-git commit -m "任何你想说明的提交信息"
-```
+## Notes
 
-3. **推送到远程仓库：**
-
-```bash
-git push origin main
-```
-
-> **注意：**  
-> 本项目使用的主分支名称为 `main`（非 `master`）。
+- **Dark Mode**: The theme preference is saved in `localStorage` and persists across pages.
+- **Database**: The SQLite database automatically creates tables for puzzles and tags if they do not exist.
+- **API Endpoints**:
+  - `POST /api/getReply`: Handles user questions and returns responses.
+  - `POST /api/puzzles`: Submits a new puzzle to the database.
+  - `GET /api/puzzles`: Fetches puzzles from the database.
 
 ---
 
-## 注意事项
+## Troubleshooting
 
-- **谨慎使用 `git add .`：**  
-若不确定提交内容，建议逐个文件添加，以避免误提交不希望修改的文件。
-
-- 如有问题或疑问，可咨询 ChatGPT 或查阅相关 Git 文档。
+- **Server Issues**: Ensure all dependencies are installed and the server is running on the correct port.
+- **Database Errors**: Check the `db/database.db` file and ensure the database schema is initialized correctly.
+- **Frontend Issues**: Use Chrome Developer Tools to debug JavaScript or CSS problems.
 
 ---
 
-## 其他说明
+## Contribution Guidelines
 
-如果你想要补充README.md，推荐使用chatGPT统一格式。
+1. Follow the Git workflow mentioned above.
+2. Test your changes thoroughly before pushing to the repository.
+3. Use consistent coding styles for JavaScript and CSS.
 
-哇噻
+---
+
+## License
+
+This project is licensed under the ISC License.
+
+## Group member
+Bo Zhu: Backend, API, Test
+Jun Wen: Front end, Database
+Shen Rong: Backend, Frontend, Puzzles
+Yi Wang: Front end, Database, UI
